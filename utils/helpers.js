@@ -1,5 +1,6 @@
 const chalk = require('chalk');
 const figlet = require('figlet');
+const { version } = require('../package.json');
 
 function showBanner() {
   console.clear();
@@ -93,10 +94,10 @@ function showHelp() {
 }
 
 function showStatusFooter() {
-  const version = 'prnvapp-1.1.3';
+  const versionString = `prnvapp-${version}`;
   const status = '2025';
   console.log('');
-  console.log(chalk.gray(`~/${version} `) + chalk.gray(`(${status})`.padStart(40)));
+  console.log(chalk.gray(`~/${versionString} `) + chalk.gray(`(${status})`.padStart(40)));
 }
 
 module.exports = {

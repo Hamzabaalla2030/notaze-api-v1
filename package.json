@@ -1,6 +1,6 @@
 {
   "name": "prenivdlapp-cli",
-  "version": "1.1.3",
+  "version": "1.1.5",
   "description": "A CLI tool for downloading videos from TikTok, Facebook, Instagram, Douyin, Spotify, Apple Music, Pinterest, Terabox, and Twitter - (FREE!)",
   "main": "index.js",
   "bin": {
@@ -10,7 +10,7 @@
     "start": "node index.js"
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">= 20.x"
   },
   "repository": {
     "type": "git",
@@ -25,7 +25,6 @@
     "twitter",
     "apple-music",
     "pinterest",
-    "terabox",
     "facebook",
     "prenivdlapp-cli",
     "instagram",

@@ -11,6 +11,7 @@ if (major < 20) {
 const { program } = require('commander');
 const chalk = require('chalk');
 const readline = require('readline');
+const { version } = require('./package.json');
 const { showBanner, showProcessing, showHelp, showStatusFooter } = require('./utils/helpers');
 const { downloadTikTok } = require('./routes/tiktok');
 const { downloadFacebook } = require('./routes/facebook');
@@ -172,7 +173,7 @@ async function startInteractive() {
 program
   .name('prnvapp')
   .description('Social Media Downloader CLI')
-  .version('1.1.3')
+  .version(version)
   .option('-p, --path <directory>', 'Custom download directory (default: "resultdownload_preniv")', 'resultdownload_preniv');
 
 program
