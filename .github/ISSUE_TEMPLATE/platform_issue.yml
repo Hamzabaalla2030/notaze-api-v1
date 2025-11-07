@@ -79,28 +79,6 @@ body:
     validations:
       required: false
 
-  - type: dropdown
-    id: frequency
-    attributes:
-      label: Frequency
-      description: How often does this issue occur?
-      options:
-        - Always (100%)
-        - Often (>50%)
-        - Sometimes (25-50%)
-        - Rarely (<25%)
-        - Only with specific URLs
-    validations:
-      required: true
-
-  - type: textarea
-    id: workaround
-    attributes:
-      label: Workaround
-      description: Have you found any workaround for this issue?
-    validations:
-      required: false
-
   - type: textarea
     id: additional
     attributes:
