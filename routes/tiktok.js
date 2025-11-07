@@ -65,6 +65,11 @@ async function downloadTikTok(url, basePath = 'resultdownload_preniv') {
         value: { url: videoUrl, type: 'video', index }
       }));
       
+      downloadChoices.push({
+        name: chalk.gray(' Cancel'),
+        value: 'cancel'
+      });
+      
       const { selectedDownload } = await inquirer.prompt([
         {
           type: 'list',
@@ -73,6 +78,11 @@ async function downloadTikTok(url, basePath = 'resultdownload_preniv') {
           choices: downloadChoices
         }
       ]);
+      
+      if (selectedDownload === 'cancel') {
+        console.log(chalk.yellow('\n Download cancelled.'));
+        return;
+      }
       
       const downloadSpinner = ora(' Downloading video...').start();
       const filename = `tiktok_video_${Date.now()}.mp4`;
@@ -96,6 +106,11 @@ async function downloadTikTok(url, basePath = 'resultdownload_preniv') {
         value: { url: videoUrl, type: 'video', index }
       }));
       
+      downloadChoices.push({
+        name: chalk.gray(' Cancel'),
+        value: 'cancel'
+      });
+      
       const { selectedDownload } = await inquirer.prompt([
         {
           type: 'list',
@@ -104,6 +119,11 @@ async function downloadTikTok(url, basePath = 'resultdownload_preniv') {
           choices: downloadChoices
         }
       ]);
+      
+      if (selectedDownload === 'cancel') {
+        console.log(chalk.yellow('\n Download cancelled.'));
+        return;
+      }
       
       const downloadSpinner = ora(' Downloading video...').start();
       const filename = `tiktok_video_${Date.now()}.mp4`;

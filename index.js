@@ -8,6 +8,7 @@ const { downloadInstagram } = require('./routes/instagram');
 const { downloadTwitter } = require('./routes/twitter');
 const { downloadDouyin } = require('./routes/douyin');
 const { downloadSpotify } = require('./routes/spotify');
+const { downloadPinterest } = require('./routes/pinterest');
 
 // Global variable to track current download path
 let currentDownloadPath = 'resultdownload_preniv';
@@ -88,15 +89,19 @@ async function processUserInput(input) {
       platform = 'Spotify';
       showProcessing('Fetching', ` Analyzing ${platform} track...`);
       await downloadSpotify(url, currentDownloadPath);
+    } else if (url.includes('pinterest.com') || url.includes('pin.it')) {
+      platform = 'Pinterest';
+      showProcessing('Fetching', ` Analyzing ${platform} pin...`);
+      await downloadPinterest(url, currentDownloadPath);
     } else {
       console.log('');
-      console.log(chalk.red(' • Unsupported platform. Please provide TikTok, Facebook, Instagram, Twitter, Douyin, or Spotify URLs.'));
+      console.log(chalk.red(' • Unsupported platform. Please provide TikTok, Facebook, Instagram, Twitter, Douyin, Spotify, or Pinterest URLs.'));
       showStatusFooter();
     }
   } else {
     console.log('');
     console.log(chalk.gray(' • Please provide a social media URL to download from.'));
-    console.log(chalk.gray(' • Supported platforms: TikTok, Facebook, Instagram, Twitter, Douyin, Spotify'));
+    console.log(chalk.gray(' • Supported platforms: TikTok, Facebook, Instagram, Twitter, Douyin, Spotify, Pinterest'));
     showStatusFooter();
   }
   
@@ -114,10 +119,8 @@ async function startInteractive() {
 
   while (true) {
     try {
-      showPrompt();
-      
       const input = await new Promise((resolve) => {
-        rl.question('  ', (answer) => {
+        rl.question(chalk.cyan('prenivdlapp ') + chalk.magenta('» '), (answer) => {
           resolve(answer);
         });
       });
@@ -206,6 +209,16 @@ program
   .action(async (url) => {
     showBanner();
     await downloadSpotify(url, program.opts().path || currentDownloadPath);
+    showStatusFooter();
+  });
+
+program
+  .command('pinterest <url>')
+  .alias('pin')
+  .description('Download from Pinterest')
+  .action(async (url) => {
+    showBanner();
+    await downloadPinterest(url, program.opts().path || currentDownloadPath);
     showStatusFooter();
   });
 

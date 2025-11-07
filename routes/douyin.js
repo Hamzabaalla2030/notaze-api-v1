@@ -39,6 +39,11 @@ async function downloadDouyin(url, basePath = 'resultdownload_preniv') {
       value: { url: item.url, quality: item.quality, index }
     }));
 
+    downloadChoices.push({
+      name: chalk.gray(' Cancel'),
+      value: 'cancel'
+    });
+
     const { selectedDownload } = await inquirer.prompt([
       {
         type: 'list',
@@ -47,6 +52,11 @@ async function downloadDouyin(url, basePath = 'resultdownload_preniv') {
         choices: downloadChoices
       }
     ]);
+
+    if (selectedDownload === 'cancel') {
+      console.log(chalk.yellow('\n Download cancelled.'));
+      return;
+    }
 
     const downloadSpinner = ora(' Downloading video...').start();
     const filename = `douyin_video_${Date.now()}.mp4`;

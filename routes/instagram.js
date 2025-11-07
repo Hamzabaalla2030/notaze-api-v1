@@ -47,6 +47,10 @@ async function downloadInstagram(url, basePath = 'resultdownload_preniv') {
         name: 'Download All',
         value: 'all'
       });
+      downloadChoices.push({
+        name: chalk.gray(' Cancel'),
+        value: 'cancel'
+      });
       const { selectedDownload } = await inquirer.prompt([
         {
           type: 'list',
@@ -55,6 +59,10 @@ async function downloadInstagram(url, basePath = 'resultdownload_preniv') {
           choices: downloadChoices
         }
       ]);
+      if (selectedDownload === 'cancel') {
+        console.log(chalk.yellow('\n Download cancelled.'));
+        return;
+      }
       if (selectedDownload === 'all') {
         for (let i = 0; i < data.data.length; i++) {
           const media = data.data[i];

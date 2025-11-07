@@ -34,7 +34,7 @@ function showBanner() {
 }
 
 function showPrompt() {
-  process.stdout.write(chalk.gray('> '));
+  process.stdout.write(chalk.cyan('prenivapp ') + chalk.magenta('» '));
 }
 
 function showProcessing(platform, action) {
@@ -70,6 +70,7 @@ function showHelp() {
   console.log(chalk.gray('     - Twitter/X (twitter.com, x.com)'));
   console.log(chalk.gray('     - Douyin (douyin.com)'));
   console.log(chalk.gray('     - Spotify (spotify.com)'));
+  console.log(chalk.gray('     - Pinterest (pinterest.com, pin.it)'));
   
   console.log('');
   console.log(chalk.cyan(' Examples:'));
@@ -79,6 +80,7 @@ function showHelp() {
   console.log(chalk.gray('   > https://twitter.com/user/status/1234567890'));
   console.log(chalk.gray('   > https://www.douyin.com/video/1234567890'));
   console.log(chalk.gray('   > https://open.spotify.com/track/ABC123'));
+  console.log(chalk.gray('   > https://www.pinterest.com/pin/1234567890/'));
   console.log('');
   console.log(chalk.cyan(' Path Management:'));
   console.log(chalk.gray('   > /setpath my_downloads'));

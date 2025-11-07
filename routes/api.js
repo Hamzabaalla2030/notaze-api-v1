@@ -5,7 +5,8 @@ const getApi = {
   instagram: 'https://api.siputzx.my.id/api/d/igdl?url=',
   twitter: 'https://api.siputzx.my.id/api/d/twitter?url=',
   douyin: 'https://api.siputzx.my.id/api/d/douyin?url=',
-  spotify: 'https://api.siputzx.my.id/api/d/spotifyv2?url='
+  spotify: 'https://api.siputzx.my.id/api/d/spotifyv2?url=',
+  pinterest: 'https://api.siputzx.my.id/api/d/pinterest?url='
 };
 
 

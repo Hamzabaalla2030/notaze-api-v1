@@ -46,6 +46,10 @@ async function downloadSpotify(url, basePath = 'resultdownload_preniv') {
       {
         name: ' Download Cover Image',
         value: { url: data.data.coverDownloadLink, type: 'image' }
+      },
+      {
+        name: chalk.gray(' Cancel'),
+        value: 'cancel'
       }
     ];
 
@@ -57,6 +61,11 @@ async function downloadSpotify(url, basePath = 'resultdownload_preniv') {
         choices: downloadChoices
       }
     ]);
+
+    if (selectedDownload === 'cancel') {
+      console.log(chalk.yellow('\n Download cancelled.'));
+      return;
+    }
 
     const downloadSpinner = ora(` Downloading ${selectedDownload.type}...`).start();
     const extension = selectedDownload.type === 'audio' ? 'mp3' : 'jpg';

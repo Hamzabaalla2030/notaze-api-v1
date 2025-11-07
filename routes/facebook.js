@@ -39,6 +39,12 @@ async function downloadFacebook(url, basePath = 'resultdownload_preniv') {
       name: `${item.resolution} - ${item.format.toUpperCase()}`,
       value: { url: item.url, resolution: item.resolution, format: item.format, index }
     }));
+    
+    downloadChoices.push({
+      name: chalk.gray(' Cancel'),
+      value: 'cancel'
+    });
+    
     const { selectedDownload } = await inquirer.prompt([
       {
         type: 'list',
@@ -47,6 +53,11 @@ async function downloadFacebook(url, basePath = 'resultdownload_preniv') {
         choices: downloadChoices
       }
     ]);
+
+    if (selectedDownload === 'cancel') {
+      console.log(chalk.yellow('\n Download cancelled.'));
+      return;
+    }
 
     // Download the selected file
     const downloadSpinner = ora(` Downloading ${selectedDownload.resolution} ${selectedDownload.format}...`).start();
