@@ -53,20 +53,3 @@ body:
       placeholder: "It would be better if..."
     validations:
       required: true
-
-  - type: textarea
-    id: benefits
-    attributes:
-      label: Benefits
-      description: How would this improvement help users?
-      placeholder: "This would help by..."
-    validations:
-      required: false
-
-  - type: textarea
-    id: examples
-    attributes:
-      label: Examples or References
-      description: Any examples, screenshots, or references that illustrate your suggestion
-    validations:
-      required: false

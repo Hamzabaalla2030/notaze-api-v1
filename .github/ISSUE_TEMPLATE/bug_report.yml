@@ -91,7 +91,7 @@ body:
       placeholder: Paste error logs here
       render: shell
     validations:
-      required: false
+      required: true
 
   - type: textarea
     id: url-example
@@ -100,4 +100,4 @@ body:
       description: If the issue is with a specific URL, please provide it (or a similar example)
       placeholder: https://www.tiktok.com/@user/video/123...
     validations:
-      required: false
+      required: true

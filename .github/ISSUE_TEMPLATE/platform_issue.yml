@@ -62,27 +62,10 @@ body:
       required: true
 
   - type: textarea
-    id: url-example
-    attributes:
-      label: Example URL
-      description: Provide an example URL that demonstrates the issue (if safe to share)
-      placeholder: https://...
-    validations:
-      required: false
-
-  - type: textarea
     id: error-message
     attributes:
       label: Error Message
       description: Copy and paste any error messages
       render: shell
     validations:
-      required: false
-
-  - type: textarea
-    id: additional
-    attributes:
-      label: Additional Information
-      description: Any other relevant information
-    validations:
-      required: false
+      required: true
