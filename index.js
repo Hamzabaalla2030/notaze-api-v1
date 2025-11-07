@@ -9,6 +9,7 @@ const { downloadTwitter } = require('./routes/twitter');
 const { downloadDouyin } = require('./routes/douyin');
 const { downloadSpotify } = require('./routes/spotify');
 const { downloadPinterest } = require('./routes/pinterest');
+const { downloadAppleMusic } = require('./routes/applemusic');
 
 // Global variable to track current download path
 let currentDownloadPath = 'resultdownload_preniv';
@@ -93,15 +94,19 @@ async function processUserInput(input) {
       platform = 'Pinterest';
       showProcessing('Fetching', ` Analyzing ${platform} pin...`);
       await downloadPinterest(url, currentDownloadPath);
+    } else if (url.includes('music.apple.com')) {
+      platform = 'Apple Music';
+      showProcessing('Fetching', ` Analyzing ${platform} track...`);
+      await downloadAppleMusic(url, currentDownloadPath);
     } else {
       console.log('');
-      console.log(chalk.red(' • Unsupported platform. Please provide TikTok, Facebook, Instagram, Twitter, Douyin, Spotify, or Pinterest URLs.'));
+      console.log(chalk.red(' • Unsupported platform. Please provide TikTok, Facebook, Instagram, Twitter, Douyin, Spotify, Pinterest, or Apple Music URLs.'));
       showStatusFooter();
     }
   } else {
     console.log('');
     console.log(chalk.gray(' • Please provide a social media URL to download from.'));
-    console.log(chalk.gray(' • Supported platforms: TikTok, Facebook, Instagram, Twitter, Douyin, Spotify, Pinterest'));
+    console.log(chalk.gray(' • Supported platforms: TikTok, Facebook, Instagram, Twitter, Douyin, Spotify, Pinterest, Apple Music'));
     showStatusFooter();
   }
   
@@ -219,6 +224,16 @@ program
   .action(async (url) => {
     showBanner();
     await downloadPinterest(url, program.opts().path || currentDownloadPath);
+    showStatusFooter();
+  });
+
+program
+  .command('applemusic <url>')
+  .alias('am')
+  .description('Download from Apple Music')
+  .action(async (url) => {
+    showBanner();
+    await downloadAppleMusic(url, program.opts().path || currentDownloadPath);
     showStatusFooter();
   });
 

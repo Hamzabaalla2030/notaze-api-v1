@@ -26,7 +26,7 @@ async function downloadFile(url, filename, spinner, basePath = 'resultdownload_p
       writer.on('error', reject);
     });
   } catch (error) {
-    spinner.fail(chalk.red(`Failed to download: ${error.message}`));
+    spinner.fail(chalk.red(`Failed to download`));
     throw error;
   }
 }

@@ -68,7 +68,7 @@ async function downloadFacebook(url, basePath = 'resultdownload_preniv') {
     if (error.code === 'ECONNABORTED') {
       console.log(chalk.gray(' • Request timeout - please try again'));
     } else if (error.response) {
-      console.log(chalk.gray(` • API Error: ${error.response.status} - ${error.response.statusText}`));
+      console.log(chalk.gray(` • API Error: ${error.response.status}`));
     } else if (error.request) {
       console.log(chalk.gray(' • Network error - please check your connection'));
     } else {

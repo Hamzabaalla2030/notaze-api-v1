@@ -1,6 +1,6 @@
 # Social Media Downloader CLI (PRENIVDL)
 
-A powerful command-line interface for downloading videos and media from TikTok, Facebook, Instagram, Twitter, Douyin, Spotify, and Pinterest. Designed with beautiful ASCII art and interactive prompts.
+A powerful command-line interface for downloading videos and media from TikTok, Facebook, Instagram, Twitter, Douyin, Spotify, Pinterest, and Apple Music. Designed with beautiful ASCII art and interactive prompts.
 
 ## Features
 
@@ -11,6 +11,7 @@ A powerful command-line interface for downloading videos and media from TikTok, 
 - **Douyin Downloader** - Download videos from Douyin (Chinese TikTok) with multiple quality options
 - **Spotify Downloader** - Download tracks (MP3) and cover images from Spotify
 - **Pinterest Downloader** - Download images, videos, and GIFs from Pinterest pins with multiple quality options
+- **Apple Music Downloader** - Download tracks (MP3) and cover images from Apple Music
 - **Beautiful CLI Interface** - Colorful output with ASCII art banner and custom prompt
 - **Interactive Mode** - User-friendly prompts and selections
 - **Fast Downloads** - Efficient downloading with progress indicators
@@ -127,6 +128,7 @@ Simply paste any of these URLs in interactive mode:
 - **Douyin**: `https://www.douyin.com/video/1234567890`
 - **Spotify**: `https://open.spotify.com/track/ABC123`
 - **Pinterest**: `https://www.pinterest.com/pin/1234567890/` or `https://pin.it/abc123`
+- **Apple Music**: `https://music.apple.com/id/album/song-name/123456?i=789012`
 
 ### Download Organization
 
@@ -139,6 +141,7 @@ Downloaded files are organized by platform with timestamps:
 - **Douyin**: `douyin_video_[timestamp].mp4`
 - **Spotify**: `spotify_audio_[timestamp].mp3` or `spotify_image_[timestamp].jpg`
 - **Pinterest**: `pinterest_[pin_id]_[quality].[extension]`
+- **Apple Music**: `applemusic_[artist]_[type]_[timestamp].[extension]`
 
 All files are saved to the specified directory (default: `resultdownload_preniv`).
 
