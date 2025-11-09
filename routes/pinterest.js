@@ -17,12 +17,12 @@ async function downloadPinterest(url, basePath = 'resultdownload_preniv') {
     });
     const data = response.data;
 
-    if (!data || !data.status) {
+    if (!data || !data.success) {
       spinner.fail(chalk.red(' Failed to fetch Pinterest media data'));
       console.log(chalk.gray('   • The API returned an error or invalid response'));
       return;
     }
-    if (!data.data || !data.data.media_urls || data.data.media_urls.length === 0) {
+    if (!data.data || !data.data.downloads || data.data.downloads.length === 0) {
       spinner.fail(chalk.red(' Invalid media data received'));
       console.log(chalk.gray('   • The pin may be unavailable or deleted'));
       return;
@@ -34,24 +34,18 @@ async function downloadPinterest(url, basePath = 'resultdownload_preniv') {
     if (data.data.title && data.data.title.trim()) {
       console.log(chalk.gray('   • ') + chalk.white(`Title: ${data.data.title}`));
     }
-    if (data.data.description && data.data.description.trim()) {
-      console.log(chalk.gray('   • ') + chalk.white(`Description: ${data.data.description}`));
-    }
-    console.log(chalk.gray('   • ') + chalk.white(`Pin ID: ${data.data.id}`));
-    console.log(chalk.gray('   • ') + chalk.white(`Created: ${data.data.created_at}`));
-    console.log(chalk.gray('   • ') + chalk.white(`Media Type: ${data.data.media_urls[0].type}`));
-    console.log(chalk.gray('   • ') + chalk.white(`Found ${data.data.media_urls.length} quality option(s)`));
+    console.log(chalk.gray('   • ') + chalk.white(`Found ${data.data.downloads.length} download option(s)`));
     console.log('');
 
-    if (data.data.media_urls.length === 1) {
-      const media = data.data.media_urls[0];
-      const downloadSpinner = ora(' Downloading image...').start();
-      const extension = media.url.includes('.gif') ? 'gif' : 'jpg';
-      const filename = `pinterest_${data.data.id}.${extension}`;
+    if (data.data.downloads.length === 1) {
+      const media = data.data.downloads[0];
+      const downloadSpinner = ora(' Downloading media...').start();
+      const extension = media.format.toLowerCase();
+      const filename = `pinterest_${Date.now()}.${extension}`;
       await downloadFile(media.url, filename, downloadSpinner, basePath);
     } else {
-      const downloadChoices = data.data.media_urls.map((media) => ({
-        name: ` ${media.quality.charAt(0).toUpperCase() + media.quality.slice(1)} - ${media.size}`,
+      const downloadChoices = data.data.downloads.map((media) => ({
+        name: ` ${media.quality} - ${media.format}`,
         value: media
       }));
       
@@ -79,17 +73,19 @@ async function downloadPinterest(url, basePath = 'resultdownload_preniv') {
       }
 
       if (selectedDownload === 'all') {
-        for (let i = 0; i < data.data.media_urls.length; i++) {
-          const media = data.data.media_urls[i];
-          const downloadSpinner = ora(` Downloading ${media.quality} quality (${i + 1}/${data.data.media_urls.length})...`).start();
-          const extension = media.url.includes('.gif') ? 'gif' : 'jpg';
-          const filename = `pinterest_${data.data.id}_${media.quality}.${extension}`;
+        for (let i = 0; i < data.data.downloads.length; i++) {
+          const media = data.data.downloads[i];
+          const downloadSpinner = ora(` Downloading ${media.quality} (${i + 1}/${data.data.downloads.length})...`).start();
+          const extension = media.format.toLowerCase();
+          const safeQuality = media.quality.replace(/[^a-zA-Z0-9]/g, '_');
+          const filename = `pinterest_${safeQuality}_${Date.now()}.${extension}`;
           await downloadFile(media.url, filename, downloadSpinner, basePath);
         }
       } else {
-        const downloadSpinner = ora(' Downloading selected image...').start();
-        const extension = selectedDownload.url.includes('.gif') ? 'gif' : 'jpg';
-        const filename = `pinterest_${data.data.id}_${selectedDownload.quality}.${extension}`;
+        const downloadSpinner = ora(' Downloading selected media...').start();
+        const extension = selectedDownload.format.toLowerCase();
+        const safeQuality = selectedDownload.quality.replace(/[^a-zA-Z0-9]/g, '_');
+        const filename = `pinterest_${safeQuality}_${Date.now()}.${extension}`;
         await downloadFile(selectedDownload.url, filename, downloadSpinner, basePath);
       }
     }
