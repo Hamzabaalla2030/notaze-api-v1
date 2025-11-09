@@ -1,7 +1,7 @@
 {
   "name": "prenivdlapp-cli",
-  "version": "1.1.5",
-  "description": "A CLI tool for downloading videos from TikTok, Facebook, Instagram, Douyin, Spotify, Apple Music, Pinterest, Terabox, and Twitter - (FREE)",
+  "version": "1.2.0",
+  "description": "A CLI tool for downloading videos, images, and audio from 13+ social media platforms including TikTok, Instagram, Facebook, Twitter/X, YouTube, Spotify, RedNote/Xiaohongshu, Threads, and more - (FREE)",
   "main": "index.js",
   "bin": {
     "prnvapp": "./index.js"
@@ -16,6 +16,11 @@
     "type": "git",
     "url": "git+https://github.com/arsya371/prenivdlapp-cli.git"
   },
+  "author": "PrenivApp - Arsya371",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/arsya371/prenivdlapp-cli/issues"
+  },
   "keywords": [
     "cli",
     "downloader",
@@ -23,23 +28,24 @@
     "douyin",
     "spotify",
     "twitter",
-    "apple-music",
+    "applemusic",
     "pinterest",
     "facebook",
     "prenivdlapp-cli",
     "instagram",
+    "youtube",
+    "capcut",
+    "bluesky",
+    "xiaohongshu",
+    "rednote",
+    "threads",
     "social-media",
     "cross-platform",
     "tools-downloader",
     "social-media-downloader",
-    "social-media-Downloader-cli",
+    "video-downloader",
     "termux"
   ],
-  "author": "PrenivApp - Arsya371",
-  "license": "GPL-3.0",
-  "bugs": {
-    "url": "https://github.com/arsya371/prenivdlapp-cli/issues"
-  },
   "homepage": "https://github.com/arsya371/prenivdlapp-cli#readme",
   "dependencies": {
     "axios": "^1.6.0",
