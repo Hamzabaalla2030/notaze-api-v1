@@ -13,7 +13,6 @@ async function downloadTikTok(url, basePath = 'resultdownload_preniv') {
   
   try {
     try {
-      spinner.text = ' Fetching TikTok video data (v2)...';
       const response = await axios.get(`${getApi.tiktok}${encodeURIComponent(url)}`, {
         timeout: 30000,
         headers: {
@@ -21,13 +20,13 @@ async function downloadTikTok(url, basePath = 'resultdownload_preniv') {
         }
       });
       
-      if (response.data && response.data.status && response.data.data && response.data.data.urls && response.data.data.urls.length > 0) {
+      if (response.data && response.data.status && response.data.data && response.data.data.downloads) {
         data = response.data;
-        apiVersion = 'v2';
+        apiVersion = 'default';
       } else {
-        throw new Error('Invalid v2 response');
+        throw new Error('Invalid default response');
       }
-    } catch (v2Error) {
+    } catch (defaultError) {
       spinner.text = ' Fetching TikTok video data (v1 fallback)...';
       const response = await axios.get(`${getApi.tiktokV1}${encodeURIComponent(url)}`, {
         timeout: 30000,
@@ -36,11 +35,11 @@ async function downloadTikTok(url, basePath = 'resultdownload_preniv') {
         }
       });
       
-      if (response.data && response.data.status && response.data.data && response.data.data.download && response.data.data.download.video) {
+      if (response.data && response.data.status && response.data.data && response.data.data.downloads) {
         data = response.data;
         apiVersion = 'v1';
       } else {
-        throw new Error('Both v2 and v1 APIs failed');
+        throw new Error('Both default and v1 APIs failed');
       }
     }
 
@@ -53,82 +52,43 @@ async function downloadTikTok(url, basePath = 'resultdownload_preniv') {
     spinner.succeed(chalk.green(` TikTok video data fetched successfully! (using ${apiVersion})`));
     console.log('');
     console.log(chalk.cyan(' Video Information:'));
-    
-    if (apiVersion === 'v2') {
-      console.log(chalk.gray('   • ') + chalk.white(`Title: ${data.data.metadata.title || 'No title'}`));
-      console.log(chalk.gray('   • ') + chalk.white(`Description: ${data.data.metadata.description || 'No description'}`));
-      console.log(chalk.gray('   • ') + chalk.white(`Creator: ${data.data.metadata.creator || 'Unknown'}`));
-      console.log('');
-
-      const downloadChoices = data.data.urls.map((videoUrl, index) => ({
-        name: ` Video Quality ${index + 1}`,
-        value: { url: videoUrl, type: 'video', index }
-      }));
-      
-      downloadChoices.push({
-        name: chalk.gray(' Cancel'),
-        value: 'cancel'
-      });
-      
-      const { selectedDownload } = await inquirer.prompt([
-        {
-          type: 'list',
-          name: 'selectedDownload',
-          message: 'Select download option:',
-          choices: downloadChoices
-        }
-      ]);
-      
-      if (selectedDownload === 'cancel') {
-        console.log(chalk.yellow('\n Download cancelled.'));
-        return;
-      }
-      
-      const downloadSpinner = ora(' Downloading video...').start();
-      const filename = `tiktok_video_${Date.now()}.mp4`;
-      await downloadFile(selectedDownload.url, filename, downloadSpinner, basePath);
-    } else {
-      console.log(chalk.gray('   • ') + chalk.white(`Title: ${data.data.metadata.title || 'No title'}`));
-      console.log(chalk.gray('   • ') + chalk.white(`Description: ${data.data.metadata.description || 'No description'}`));
-      console.log(chalk.gray('   • ') + chalk.white(`Likes: ${data.data.metadata.stats.likeCount || 0}`));
-      console.log(chalk.gray('   • ') + chalk.white(`Views: ${data.data.metadata.stats.playCount || 0}`));
-      console.log(chalk.gray('   • ') + chalk.white(`Comments: ${data.data.metadata.stats.commentCount || 0}`));
-      console.log(chalk.gray('   • ') + chalk.white(`Shares: ${data.data.metadata.stats.shareCount || 0}`));
-      console.log('');
-
-      if (data.data.metadata.hashtags && data.data.metadata.hashtags.length > 0) {
-        console.log(chalk.gray('   • ') + chalk.white(`Hashtags: ${data.data.metadata.hashtags.join(', ')}`));
-        console.log('');
-      }
-      
-      const downloadChoices = data.data.download.video.map((videoUrl, index) => ({
-        name: ` Video Quality ${index + 1}`,
-        value: { url: videoUrl, type: 'video', index }
-      }));
-      
-      downloadChoices.push({
-        name: chalk.gray(' Cancel'),
-        value: 'cancel'
-      });
-      
-      const { selectedDownload } = await inquirer.prompt([
-        {
-          type: 'list',
-          name: 'selectedDownload',
-          message: 'Select download option:',
-          choices: downloadChoices
-        }
-      ]);
-      
-      if (selectedDownload === 'cancel') {
-        console.log(chalk.yellow('\n Download cancelled.'));
-        return;
-      }
-      
-      const downloadSpinner = ora(' Downloading video...').start();
-      const filename = `tiktok_video_${Date.now()}.mp4`;
-      await downloadFile(selectedDownload.url, filename, downloadSpinner, basePath);
+    console.log(chalk.gray('   • ') + chalk.white(`Title: ${data.data.title || 'No title'}`));
+    if (data.data.description) {
+      console.log(chalk.gray('   • ') + chalk.white(`Description: ${data.data.description}`));
     }
+    if (data.data.creator) {
+      console.log(chalk.gray('   • ') + chalk.white(`Creator: ${data.data.creator}`));
+    }
+    console.log('');
+
+    const downloadChoices = data.data.downloads.map((item, index) => ({
+      name: ` ${item.text}`,
+      value: { url: item.url, text: item.text, index }
+    }));
+    
+    downloadChoices.push({
+      name: chalk.gray(' Cancel'),
+      value: 'cancel'
+    });
+    
+    const { selectedDownload } = await inquirer.prompt([
+      {
+        type: 'list',
+        name: 'selectedDownload',
+        message: 'Select download option:',
+        choices: downloadChoices
+      }
+    ]);
+    
+    if (selectedDownload === 'cancel') {
+      console.log(chalk.yellow('\n Download cancelled.'));
+      return;
+    }
+    
+    const downloadSpinner = ora(` Downloading ${selectedDownload.text}...`).start();
+    const extension = selectedDownload.text.toLowerCase().includes('mp3') ? 'mp3' : 'mp4';
+    const filename = `tiktok_${Date.now()}.${extension}`;
+    await downloadFile(selectedDownload.url, filename, downloadSpinner, basePath);
   } catch (error) {
     spinner.fail(chalk.red(' Error fetching TikTok video'));
     if (error.code === 'ECONNABORTED') {

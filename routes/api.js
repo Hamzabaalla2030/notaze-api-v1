@@ -1,14 +1,14 @@
 const getApi = {
-  tiktok: 'https://api.siputzx.my.id/api/d/tiktok?url=',
-  tiktokV1: 'https://api.siputzx.my.id/api/d/tiktok/v2?url=',
-  facebook: 'https://api.siputzx.my.id/api/d/facebook?url=',
-  instagram: 'https://api.siputzx.my.id/api/d/igdl?url=',
-  twitter: 'https://api.siputzx.my.id/api/d/twitter?url=',
-  douyin: 'https://api.siputzx.my.id/api/d/douyin?url=',
-  spotify: 'https://api.siputzx.my.id/api/d/spotify?url=',
-  spotifyV2: 'https://api.siputzx.my.id/api/d/spotifyv2?url=',
-  pinterest: 'https://api.siputzx.my.id/api/d/pinterest?url=',
-  applemusic: 'https://api.siputzx.my.id/api/d/musicapple?url=',
+  tiktok: 'https://prenivapi.vercel.app/api/tiktok?url=',
+  tiktokV1: 'https://prenivapi.vercel.app/api/tiktokv1?url=',
+  facebook: 'https://prenivapi.vercel.app/api/fbdl?url=',
+  instagram: 'https://prenivapi.vercel.app/api/igdl?url=',
+  twitter: 'https://prenivapi.vercel.app/api/twitter?url=',
+  youtube: 'https://prenivapi.vercel.app/api/youtube?url=',
+  douyin: 'https://prenivapi.vercel.app/api/douyin?url=',
+  spotify: 'https://prenivapi.vercel.app/api/spotify?url=',
+  pinterest: 'https://prenivapi.vercel.app/api/pinterest?url=',
+  applemusic: 'https://prenivapi.vercel.app/api/applemusic?url=',
 };
 
 

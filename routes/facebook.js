@@ -28,15 +28,26 @@ async function downloadFacebook(url, basePath = 'resultdownload_preniv') {
       return;
     }
 
-    spinner.succeed(chalk.green('  Facebook video data fetched successfully!'));
+    spinner.succeed(chalk.green(' Facebook video data fetched successfully!'));
     console.log('');
-    console.log(chalk.cyan('  Video Information:'));
-    console.log(chalk.gray('    • ') + chalk.white(`Title: ${data.data.title || 'No title'}`));
-    console.log(chalk.gray('    • ') + chalk.white(`Thumbnail: ${data.data.thumbnail ? 'Available' : 'Not available'}`));
+    console.log(chalk.cyan(' Video Information:'));
+    console.log(chalk.gray('   • ') + chalk.white(`Title: ${data.data.title || 'No title'}`));
+    console.log(chalk.gray('   • ') + chalk.white(`Thumbnail: ${data.data.thumbnail ? 'Available' : 'Not available'}`));
     console.log('');
 
-    const downloadChoices = data.data.data.map((item, index) => ({
-      name: `${item.resolution} - ${item.format.toUpperCase()}`,
+    const uniqueDownloads = [];
+    const seen = new Set();
+    
+    for (const item of data.data.data) {
+      const key = `${item.resolution}-${item.format}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        uniqueDownloads.push(item);
+      }
+    }
+
+    const downloadChoices = uniqueDownloads.map((item, index) => ({
+      name: ` ${item.resolution} - ${item.format.toUpperCase()}`,
       value: { url: item.url, resolution: item.resolution, format: item.format, index }
     }));
     

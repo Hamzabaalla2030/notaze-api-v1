@@ -9,29 +9,13 @@ async function downloadSpotify(url, basePath = 'resultdownload_preniv') {
   const spinner = ora(' Fetching Spotify track data...').start();
   
   try {
-    let response;
-    let data;
-    let apiUsed = 'default';
-
-    try {
-      response = await axios.get(`${getApi.spotify}${encodeURIComponent(url)}`, {
-        timeout: 30000,
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.210 Mobile Safari/537.36'
-        }
-      });
-      data = response.data;
-    } catch (error) {
-      spinner.text = ' Trying alternative API...';
-      response = await axios.get(`${getApi.spotifyV2}${encodeURIComponent(url)}`, {
-        timeout: 30000,
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.210 Mobile Safari/537.36'
-        }
-      });
-      data = response.data;
-      apiUsed = 'v2';
-    }
+    const response = await axios.get(`${getApi.spotify}${encodeURIComponent(url)}`, {
+      timeout: 30000,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.210 Mobile Safari/537.36'
+      }
+    });
+    const data = response.data;
 
     if (!data || !data.status) {
       spinner.fail(chalk.red(' Failed to fetch Spotify track data'));
@@ -39,38 +23,22 @@ async function downloadSpotify(url, basePath = 'resultdownload_preniv') {
       return;
     }
 
-    let trackInfo, downloadUrl, coverUrl;
-
-    if (apiUsed === 'default') {
-      if (!data.data || !data.data.download) {
-        spinner.fail(chalk.red(' Invalid track data received'));
-        console.log(chalk.gray('   • The track may be unavailable'));
-        return;
-      }
-      trackInfo = {
-        title: data.data.title || 'No title',
-        artist: data.data.artis || 'Unknown artist',
-        duration: data.data.durasi ? `${Math.floor(data.data.durasi / 1000)}s` : null,
-        type: data.data.type
-      };
-      downloadUrl = data.data.download;
-      coverUrl = data.data.image;
-    } else {
-      if (!data.data || !data.data.mp3DownloadLink) {
-        spinner.fail(chalk.red(' Invalid track data received'));
-        console.log(chalk.gray('   • The track may be unavailable'));
-        return;
-      }
-      trackInfo = {
-        title: data.data.songTitle || 'No title',
-        artist: data.data.artist || 'Unknown artist',
-        description: data.data.description
-      };
-      downloadUrl = data.data.mp3DownloadLink;
-      coverUrl = data.data.coverDownloadLink;
+    if (!data.data || !data.data.download) {
+      spinner.fail(chalk.red(' Invalid track data received'));
+      console.log(chalk.gray('   • The track may be unavailable'));
+      return;
     }
 
-    spinner.succeed(chalk.green(` Spotify track data fetched successfully! (${apiUsed} API)`));
+    const trackInfo = {
+      title: data.data.title || 'No title',
+      artist: data.data.artist || 'Unknown artist',
+      duration: data.data.duration ? `${Math.floor(data.data.duration / 1000)}s` : null,
+      type: data.data.type
+    };
+    const downloadUrl = data.data.download;
+    const coverUrl = data.data.image;
+
+    spinner.succeed(chalk.green(' Spotify track data fetched successfully!'));
     console.log('');
     console.log(chalk.cyan(' Track Information:'));
     console.log(chalk.gray('   • ') + chalk.white(`Title: ${trackInfo.title}`));
@@ -78,8 +46,8 @@ async function downloadSpotify(url, basePath = 'resultdownload_preniv') {
     if (trackInfo.duration) {
       console.log(chalk.gray('   • ') + chalk.white(`Duration: ${trackInfo.duration}`));
     }
-    if (trackInfo.description) {
-      console.log(chalk.gray('   • ') + chalk.white(`Description: ${trackInfo.description}`));
+    if (trackInfo.type) {
+      console.log(chalk.gray('   • ') + chalk.white(`Type: ${trackInfo.type}`));
     }
     console.log('');
 
@@ -114,7 +82,8 @@ async function downloadSpotify(url, basePath = 'resultdownload_preniv') {
 
     const downloadSpinner = ora(` Downloading ${selectedDownload.type}...`).start();
     const extension = selectedDownload.type === 'audio' ? 'mp3' : 'jpg';
-    const filename = `${trackInfo.title}_${selectedDownload.type}_${Date.now()}.${extension}`;
+    const safeTitle = trackInfo.title.replace(/[<>:"/\\|?*]/g, '').substring(0, 50).trim();
+    const filename = `${safeTitle}_${selectedDownload.type}_${Date.now()}.${extension}`;
     const maxSize = selectedDownload.type === 'audio' ? MAX_FILE_SIZE : null;
     await downloadFile(selectedDownload.url, filename, downloadSpinner, basePath, maxSize);
     

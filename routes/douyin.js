@@ -22,7 +22,7 @@ async function downloadDouyin(url, basePath = 'resultdownload_preniv') {
       console.log(chalk.gray('   • The API returned an error or invalid response'));
       return;
     }
-    if (!data.data || !data.data.downloads || data.data.downloads.length === 0) {
+    if (!data.data || !data.data.videoLinks || data.data.videoLinks.length === 0) {
       spinner.fail(chalk.red(' Invalid video data received'));
       console.log(chalk.gray('   • The video may be private or unavailable'));
       return;
@@ -32,11 +32,14 @@ async function downloadDouyin(url, basePath = 'resultdownload_preniv') {
     console.log('');
     console.log(chalk.cyan(' Video Information:'));
     console.log(chalk.gray('   • ') + chalk.white(`Title: ${data.data.title || 'No title'}`));
+    if (data.data.timestamp) {
+      console.log(chalk.gray('   • ') + chalk.white(`Duration: ${data.data.timestamp}`));
+    }
     console.log('');
 
-    const downloadChoices = data.data.downloads.map((item, index) => ({
-      name: ` ${item.quality}`,
-      value: { url: item.url, quality: item.quality, index }
+    const downloadChoices = data.data.videoLinks.map((item, index) => ({
+      name: ` ${item.label}`,
+      value: { url: item.url, label: item.label, index }
     }));
 
     downloadChoices.push({

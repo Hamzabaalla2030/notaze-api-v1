@@ -1,6 +1,7 @@
 const axios = require('axios');
 const chalk = require('chalk');
 const ora = require('ora');
+const inquirer = require('inquirer');
 const { getApi } = require('./api');
 const { downloadFile } = require('../utils/download');
 
@@ -21,7 +22,7 @@ async function downloadTwitter(url, basePath = 'resultdownload_preniv') {
       console.log(chalk.gray('   • The API returned an error or invalid response'));
       return;
     }
-    if (!data.data || !data.data.downloadLink) {
+    if (!data.media || data.media.length === 0) {
       spinner.fail(chalk.red(' Invalid video data received'));
       console.log(chalk.gray('   • The video may be private or unavailable'));
       return;
@@ -30,13 +31,43 @@ async function downloadTwitter(url, basePath = 'resultdownload_preniv') {
     spinner.succeed(chalk.green(' Twitter video data fetched successfully!'));
     console.log('');
     console.log(chalk.cyan(' Video Information:'));
-    console.log(chalk.gray('   • ') + chalk.white(`Title: ${data.data.videoTitle || 'No title'}`));
-    console.log(chalk.gray('   • ') + chalk.white(`Description: ${data.data.videoDescription || 'No description'}`));
+    console.log(chalk.gray('   • ') + chalk.white(`Type: ${data.type || 'video'}`));
+    console.log(chalk.gray('   • ') + chalk.white(`Found ${data.media.length} quality option(s)`));
     console.log('');
 
-    const downloadSpinner = ora(' Downloading video...').start();
-    const filename = `twitter_video_${Date.now()}.mp4`;
-    await downloadFile(data.data.downloadLink, filename, downloadSpinner, basePath);
+    if (data.media.length === 1) {
+      const downloadSpinner = ora(' Downloading video...').start();
+      const filename = `twitter_video_${data.media[0].quality}p_${Date.now()}.mp4`;
+      await downloadFile(data.media[0].url, filename, downloadSpinner, basePath);
+    } else {
+      const downloadChoices = data.media.map((item, index) => ({
+        name: ` ${item.quality}p`,
+        value: { url: item.url, quality: item.quality, index }
+      }));
+      
+      downloadChoices.push({
+        name: chalk.gray(' Cancel'),
+        value: 'cancel'
+      });
+      
+      const { selectedDownload } = await inquirer.prompt([
+        {
+          type: 'list',
+          name: 'selectedDownload',
+          message: 'Select download option:',
+          choices: downloadChoices
+        }
+      ]);
+      
+      if (selectedDownload === 'cancel') {
+        console.log(chalk.yellow('\n Download cancelled.'));
+        return;
+      }
+      
+      const downloadSpinner = ora(` Downloading ${selectedDownload.quality}p video...`).start();
+      const filename = `twitter_video_${selectedDownload.quality}p_${Date.now()}.mp4`;
+      await downloadFile(selectedDownload.url, filename, downloadSpinner, basePath);
+    }
   } catch (error) {
     spinner.fail(chalk.red(' Error fetching Twitter video'));
     if (error.code === 'ECONNABORTED') {

@@ -31,11 +31,9 @@ async function downloadAppleMusic(url, basePath = 'resultdownload_preniv') {
     spinner.succeed(chalk.green(' Apple Music track data fetched successfully!'));
     console.log('');
     console.log(chalk.cyan(' Track Information:'));
-    console.log(chalk.gray('   • Title: ') + chalk.white(data.data.pageTitle || 'No title'));
+    console.log(chalk.gray('   • Song: ') + chalk.white(data.data.songTitle || 'No title'));
     console.log(chalk.gray('   • Artist: ') + chalk.white(data.data.artist || 'Unknown artist'));
-    if (data.data.musicReleaseDate && data.data.musicReleaseDate.trim()) {
-      console.log(chalk.gray('   • Release Date: ') + chalk.white(data.data.musicReleaseDate));
-    }
+    console.log(chalk.gray('   • Page: ') + chalk.white(data.data.pageTitle || 'N/A'));
     console.log('');
 
     const downloadChoices = [

@@ -10,6 +10,7 @@ const { downloadDouyin } = require('./routes/douyin');
 const { downloadSpotify } = require('./routes/spotify');
 const { downloadPinterest } = require('./routes/pinterest');
 const { downloadAppleMusic } = require('./routes/applemusic');
+const { downloadYouTube } = require('./routes/youtube');
 
 program
   .name('prnvapp')
@@ -99,6 +100,16 @@ program
   .action(async (url) => {
     showBanner();
     await downloadAppleMusic(url, program.opts().path || currentDownloadPath);
+    showStatusFooter();
+  });
+
+program
+  .command('youtube <url>')
+  .alias('yt')
+  .description('Download from YouTube')
+  .action(async (url) => {
+    showBanner();
+    await downloadYouTube(url, program.opts().path || currentDownloadPath);
     showStatusFooter();
   });
 

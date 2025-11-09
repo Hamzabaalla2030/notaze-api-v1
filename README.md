@@ -1,6 +1,6 @@
 # Social Media Downloader CLI (PRENIVDL)
 
-A powerful command-line interface for downloading videos and media from TikTok, Facebook, Instagram, Twitter, Douyin, Spotify, Pinterest, and Apple Music. Designed with beautiful ASCII art and interactive prompts.
+A powerful command-line interface for downloading videos and media from TikTok, Facebook, Instagram, Twitter, Douyin, Spotify, Pinterest, Apple Music, and YouTube. Designed with beautiful ASCII art and interactive prompts.
 
 ## Features
 
@@ -12,6 +12,7 @@ A powerful command-line interface for downloading videos and media from TikTok, 
 - **Spotify Downloader** - Download tracks (MP3) and cover images from Spotify
 - **Pinterest Downloader** - Download images, videos, and GIFs from Pinterest pins with multiple quality options
 - **Apple Music Downloader** - Download tracks (MP3) and cover images from Apple Music
+- **YouTube Downloader** - Download videos and audio from YouTube with multiple quality options
 - **Beautiful CLI Interface** - Colorful output with ASCII art banner and custom prompt
 - **Interactive Mode** - User-friendly prompts and selections
 - **Fast Downloads** - Efficient downloading with progress indicators
@@ -129,6 +130,7 @@ Simply paste any of these URLs in interactive mode:
 - **Spotify**: `https://open.spotify.com/track/ABC123`
 - **Pinterest**: `https://www.pinterest.com/pin/1234567890/` or `https://pin.it/abc123`
 - **Apple Music**: `https://music.apple.com/id/album/song-name/123456?i=789012`
+- **YouTube**: `https://www.youtube.com/watch?v=ABC123` or `https://youtu.be/ABC123`
 
 ### Download Organization
 
@@ -142,6 +144,7 @@ Downloaded files are organized by platform with timestamps:
 - **Spotify**: `spotify_audio_[timestamp].mp3` or `spotify_image_[timestamp].jpg`
 - **Pinterest**: `pinterest_[pin_id]_[quality].[extension]`
 - **Apple Music**: `applemusic_[artist]_[type]_[timestamp].[extension]`
+- **YouTube**: `youtube_[quality]_[timestamp].[extension]`
 
 All files are saved to the specified directory (default: `resultdownload_preniv`).
 

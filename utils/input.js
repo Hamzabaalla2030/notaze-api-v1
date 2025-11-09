@@ -9,6 +9,7 @@ const { downloadDouyin } = require('../routes/douyin');
 const { downloadSpotify } = require('../routes/spotify');
 const { downloadPinterest } = require('../routes/pinterest');
 const { downloadAppleMusic } = require('../routes/applemusic');
+const { downloadYouTube } = require('../routes/youtube');
 
 const major = parseInt(process.versions.node.split('.')[0], 10);
 if (major < 20) {
@@ -119,15 +120,19 @@ async function processUserInput(input) {
       platform = 'Apple Music';
       showProcessing('Fetching', ` Analyzing ${platform} track...`);
       await downloadAppleMusic(url, currentDownloadPath);
+    } else if (hostname.endsWith('youtube.com') || hostname === 'youtube.com' || hostname.endsWith('youtu.be') || hostname === 'youtu.be') {
+      platform = 'YouTube';
+      showProcessing('Fetching', ` Analyzing ${platform} video...`);
+      await downloadYouTube(url, currentDownloadPath);
     } else {
       console.log('');
-      console.log(chalk.red(' • Unsupported platform. Please provide TikTok, Facebook, Instagram, Twitter, Douyin, Spotify, Pinterest, or Apple Music URLs.'));
+      console.log(chalk.red(' • Unsupported platform. Please provide TikTok, Facebook, Instagram, Twitter, Douyin, Spotify, Pinterest, Apple Music, or YouTube URLs.'));
       showStatusFooter();
     }
   } else {
     console.log('');
     console.log(chalk.gray(' • Please provide a social media URL to download from.'));
-    console.log(chalk.gray(' • Supported platforms: TikTok, Facebook, Instagram, Twitter, Douyin, Spotify, Pinterest, Apple Music'));
+    console.log(chalk.gray(' • Supported platforms: TikTok, Facebook, Instagram, Twitter, Douyin, Spotify, Pinterest, Apple Music, YouTube'));
     showStatusFooter();
   }
   
