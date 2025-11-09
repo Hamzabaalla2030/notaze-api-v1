@@ -1,19 +1,7 @@
 const chalk = require('chalk');
 const readline = require('readline');
 const { showBanner, showProcessing, showHelp, showStatusFooter } = require('./helpers');
-const { downloadTikTok } = require('../routes/tiktok');
-const { downloadFacebook } = require('../routes/facebook');
-const { downloadInstagram } = require('../routes/instagram');
-const { downloadTwitter } = require('../routes/twitter');
-const { downloadDouyin } = require('../routes/douyin');
-const { downloadSpotify } = require('../routes/spotify');
-const { downloadPinterest } = require('../routes/pinterest');
-const { downloadAppleMusic } = require('../routes/applemusic');
-const { downloadYouTube } = require('../routes/youtube');
-const { downloadCapcut } = require('../routes/capcut');
-const { downloadBluesky } = require('../routes/bluesky');
-const { downloadRedNote } = require('../routes/rednote');
-const { downloadThreads } = require('../routes/threads');
+const { PLATFORM_CONFIG, matchPlatform } = require('./config');
 
 const major = parseInt(process.versions.node.split('.')[0], 10);
 if (major < 20) {
@@ -66,6 +54,57 @@ async function processUserInput(input) {
           console.log('');
         }
         return true;
+      case 'platform':
+      case 'platforms':
+        console.log('');
+        console.log(chalk.cyan(' Supported Platforms:'));
+        console.log('');
+        PLATFORM_CONFIG.forEach((platform, index) => {
+          const domainsText = platform.domains.join(', ');
+          const aliasText = platform.alias ? chalk.gray(` (alias: ${platform.alias})`) : '';
+          console.log(chalk.gray(`   ${index + 1}. `) + chalk.white(platform.name) + aliasText);
+          console.log(chalk.gray(`      Domains: ${domainsText}`));
+          console.log(chalk.gray(`      Command: ${platform.command}`));
+          if (platform.exampleUrl) {
+            console.log(chalk.gray(`      Example: ${platform.exampleUrl}`));
+          }
+          console.log('');
+        });
+        showStatusFooter();
+        return true;
+      case 'tutor':
+      case 'tutorial':
+        console.log('');
+        console.log(chalk.cyan(' Quick Tutorial:'));
+        console.log('');
+        console.log(chalk.white(' 1. Interactive Mode (Current):'));
+        console.log(chalk.gray('    • Just paste any supported URL and press Enter'));
+        console.log(chalk.gray('    • The app will auto-detect the platform'));
+        console.log(chalk.gray('    • Follow the prompts to select quality/format'));
+        console.log('');
+        console.log(chalk.white(' 2. Command Line Mode:'));
+        console.log(chalk.gray('    • Use: ') + chalk.cyan('node index.js <platform> <url>'));
+        console.log(chalk.gray('    • Example: ') + chalk.cyan('node index.js tiktok https://tiktok.com/@user/video/123'));
+        console.log(chalk.gray('    • With alias: ') + chalk.cyan('node index.js ig https://instagram.com/p/ABC/'));
+        console.log('');
+        console.log(chalk.white(' 3. Custom Download Path:'));
+        console.log(chalk.gray('    • Interactive: ') + chalk.magenta('/setpath my_downloads'));
+        console.log(chalk.gray('    • Command: ') + chalk.cyan('node index.js -p my_downloads tiktok <url>'));
+        console.log('');
+        console.log(chalk.white(' 4. Available Commands:'));
+        console.log(chalk.gray('    • ') + chalk.magenta('/help') + chalk.gray(' - Show all commands'));
+        console.log(chalk.gray('    • ') + chalk.magenta('/platform') + chalk.gray(' - List all supported platforms'));
+        console.log(chalk.gray('    • ') + chalk.magenta('/path') + chalk.gray(' - Show current download path'));
+        console.log(chalk.gray('    • ') + chalk.magenta('/clear') + chalk.gray(' - Clear screen'));
+        console.log(chalk.gray('    • ') + chalk.magenta('/quit') + chalk.gray(' - Exit application'));
+        console.log('');
+        console.log(chalk.white(' Tips:'));
+        console.log(chalk.gray('    • Downloads are saved to: ') + chalk.cyan(currentDownloadPath));
+        console.log(chalk.gray('    • Most platforms offer multiple quality options'));
+        console.log(chalk.gray('    • Some platforms support batch downloads'));
+        console.log('');
+        showStatusFooter();
+        return true;
       default:
         console.log(chalk.red(` Unknown command: /${command}`));
         console.log(chalk.gray(' Type /help for available commands.'));
@@ -79,7 +118,6 @@ async function processUserInput(input) {
   
   if (urls && urls.length > 0) {
     const url = urls[0];
-    let platform = '';
     let hostname = '';
     
     try {
@@ -92,67 +130,22 @@ async function processUserInput(input) {
       return true;
     }
     
-    if (hostname.endsWith('tiktok.com') || hostname === 'tiktok.com') {
-      platform = 'TikTok';
-      showProcessing('Fetching', ` Analyzing ${platform} video...`);
-      await downloadTikTok(url, currentDownloadPath);
-    } else if (hostname.endsWith('facebook.com') || hostname === 'facebook.com' || hostname.endsWith('fb.watch') || hostname === 'fb.watch') {
-      platform = 'Facebook';
-      showProcessing('Fetching', ` Analyzing ${platform} video...`);
-      await downloadFacebook(url, currentDownloadPath);
-    } else if (hostname.endsWith('instagram.com') || hostname === 'instagram.com') {
-      platform = 'Instagram';
-      showProcessing('Fetching', ` Analyzing ${platform} media...`);
-      await downloadInstagram(url, currentDownloadPath);
-    } else if (hostname.endsWith('twitter.com') || hostname === 'twitter.com' || hostname === 'x.com') {
-      platform = 'Twitter';
-      showProcessing('Fetching', ` Analyzing ${platform} video...`);
-      await downloadTwitter(url, currentDownloadPath);
-    } else if (hostname.endsWith('douyin.com') || hostname === 'douyin.com') {
-      platform = 'Douyin';
-      showProcessing('Fetching', ` Analyzing ${platform} video...`);
-      await downloadDouyin(url, currentDownloadPath);
-    } else if (hostname.endsWith('spotify.com') || hostname === 'spotify.com') {
-      platform = 'Spotify';
-      showProcessing('Fetching', ` Analyzing ${platform} track...`);
-      await downloadSpotify(url, currentDownloadPath);
-    } else if (hostname.endsWith('pinterest.com') || hostname === 'pinterest.com' || hostname.endsWith('pin.it') || hostname === 'pin.it') {
-      platform = 'Pinterest';
-      showProcessing('Fetching', ` Analyzing ${platform} pin...`);
-      await downloadPinterest(url, currentDownloadPath);
-    } else if (hostname.endsWith('apple.com') && url.includes('music.apple.com')) {
-      platform = 'Apple Music';
-      showProcessing('Fetching', ` Analyzing ${platform} track...`);
-      await downloadAppleMusic(url, currentDownloadPath);
-    } else if (hostname.endsWith('youtube.com') || hostname === 'youtube.com' || hostname.endsWith('youtu.be') || hostname === 'youtu.be') {
-      platform = 'YouTube';
-      showProcessing('Fetching', ` Analyzing ${platform} video...`);
-      await downloadYouTube(url, currentDownloadPath);
-    } else if (hostname.endsWith('capcut.com') || hostname === 'capcut.com') {
-      platform = 'CapCut';
-      showProcessing('Fetching', ` Analyzing ${platform} video...`);
-      await downloadCapcut(url, currentDownloadPath);
-    } else if (hostname.endsWith('bsky.app') || hostname === 'bsky.app' || hostname.endsWith('bsky.social')) {
-      platform = 'Bluesky';
-      showProcessing('Fetching', ` Analyzing ${platform} post...`);
-      await downloadBluesky(url, currentDownloadPath);
-    } else if (hostname.endsWith('xiaohongshu.com') || hostname === 'xiaohongshu.com' || hostname.endsWith('xhslink.com') || hostname === 'xhslink.com') {
-      platform = 'RedNote/Xiaohongshu';
-      showProcessing('Fetching', ` Analyzing ${platform} post...`);
-      await downloadRedNote(url, currentDownloadPath);
-    } else if (hostname.endsWith('threads.net') || hostname === 'threads.net') {
-      platform = 'Threads';
-      showProcessing('Fetching', ` Analyzing ${platform} video...`);
-      await downloadThreads(url, currentDownloadPath);
+    const platform = matchPlatform(hostname, url);
+    
+    if (platform) {
+      showProcessing('Fetching', ` Analyzing ${platform.name} ${platform.mediaType}...`);
+      await platform.handler(url, currentDownloadPath);
     } else {
+      const supportedPlatforms = PLATFORM_CONFIG.map(p => p.name).join(', ');
       console.log('');
-      console.log(chalk.red(' • Unsupported platform. Please provide TikTok, Facebook, Instagram, Twitter, Douyin, Spotify, Pinterest, Apple Music, YouTube, CapCut, Bluesky, RedNote/Xiaohongshu, or Threads URLs.'));
+      console.log(chalk.red(` • Unsupported platform. Please provide ${supportedPlatforms} URLs.`));
       showStatusFooter();
     }
   } else {
+    const supportedPlatforms = PLATFORM_CONFIG.map(p => p.name).join(', ');
     console.log('');
     console.log(chalk.gray(' • Please provide a social media URL to download from.'));
-    console.log(chalk.gray(' • Supported platforms: TikTok, Facebook, Instagram, Twitter, Douyin, Spotify, Pinterest, Apple Music, YouTube, CapCut, Bluesky, RedNote/Xiaohongshu, Threads'));
+    console.log(chalk.gray(` • Supported platforms: ${supportedPlatforms}`));
     showStatusFooter();
   }
   

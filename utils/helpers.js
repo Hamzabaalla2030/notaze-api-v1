@@ -1,6 +1,7 @@
 const chalk = require('chalk');
 const figlet = require('figlet');
 const { version } = require('../package.json');
+const { PLATFORM_CONFIG } = require('./config');
 
 function showBanner() {
   console.clear();
@@ -57,40 +58,14 @@ function isValidUrl(string) {
 function showHelp() {
   console.log('');
   console.log(chalk.cyan(' Available Commands:'));
-  console.log(chalk.gray('   • ') + chalk.magenta('/help') + chalk.gray('    - Show this help message'));
-  console.log(chalk.gray('   • ') + chalk.magenta('/clear') + chalk.gray('   - Clear the screen'));
-  console.log(chalk.gray('   • ') + chalk.magenta('/quit') + chalk.gray('    - Exit the application'));
-  console.log(chalk.gray('   • ') + chalk.magenta('/path') + chalk.gray('    - Show current download path'));
-  console.log(chalk.gray('   • ') + chalk.magenta('/setpath') + chalk.gray('  - Set custom download directory'));
+  console.log(chalk.gray('   • ') + chalk.magenta('/help') + chalk.gray('      - Show this help message'));
+  console.log(chalk.gray('   • ') + chalk.magenta('/tutor') + chalk.gray('     - Show quick tutorial'));
+  console.log(chalk.gray('   • ') + chalk.magenta('/platform') + chalk.gray('  - List all supported platforms'));
+  console.log(chalk.gray('   • ') + chalk.magenta('/clear') + chalk.gray('     - Clear the screen'));
+  console.log(chalk.gray('   • ') + chalk.magenta('/path') + chalk.gray('      - Show current download path'));
+  console.log(chalk.gray('   • ') + chalk.magenta('/setpath') + chalk.gray('   - Set custom download directory'));
+  console.log(chalk.gray('   • ') + chalk.magenta('/quit') + chalk.gray('      - Exit the application'));
   
-  console.log('');
-  console.log(chalk.cyan(' Supported Platforms:'));
-  console.log(chalk.gray('   • Simply paste a URL from:'));
-  console.log(chalk.gray('     - TikTok (tiktok.com) - with v2/v1 fallback'));
-  console.log(chalk.gray('     - Facebook (facebook.com, fb.watch)'));
-  console.log(chalk.gray('     - Instagram (instagram.com)'));
-  console.log(chalk.gray('     - Twitter/X (twitter.com, x.com)'));
-  console.log(chalk.gray('     - Douyin (douyin.com)'));
-  console.log(chalk.gray('     - Spotify (spotify.com)'));
-  console.log(chalk.gray('     - Pinterest (pinterest.com, pin.it)'));
-  console.log(chalk.gray('     - Apple Music (music.apple.com)'));
-  console.log(chalk.gray('     - YouTube (youtube.com, youtu.be)'));
-  console.log(chalk.gray('     - CapCut (capcut.com)'));
-  console.log(chalk.gray('     - Bluesky (bsky.app, bsky.social)'));
-  
-  console.log('');
-  console.log(chalk.cyan(' Examples:'));
-  console.log(chalk.gray('   > https://www.tiktok.com/@username/video/1234567890'));
-  console.log(chalk.gray('   > https://www.facebook.com/watch/?v=1234567890'));
-  console.log(chalk.gray('   > https://www.instagram.com/p/ABC123/'));
-  console.log(chalk.gray('   > https://twitter.com/user/status/1234567890'));
-  console.log(chalk.gray('   > https://www.douyin.com/video/1234567890'));
-  console.log(chalk.gray('   > https://open.spotify.com/track/ABC123'));
-  console.log(chalk.gray('   > https://www.pinterest.com/pin/1234567890/'));
-  console.log(chalk.gray('   > https://music.apple.com/id/album/song/123456'));
-  console.log(chalk.gray('   > https://www.youtube.com/watch?v=ABC123'));
-  console.log(chalk.gray('   > https://www.capcut.com/tv2/ABC123/'));
-  console.log(chalk.gray('   > https://bsky.app/profile/user.bsky.social/post/ABC123'));
   console.log('');
   console.log(chalk.cyan(' Path Management:'));
   console.log(chalk.gray('   > /setpath my_downloads'));
