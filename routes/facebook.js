@@ -3,7 +3,7 @@ const chalk = require('chalk');
 const ora = require('ora');
 const inquirer = require('inquirer');
 const { getApi } = require('./api');
-const { downloadFile } = require('../utils/download');
+const { downloadFile, getFileExtension } = require('../utils/download');
 
 async function downloadFacebook(url, basePath = 'resultdownload_preniv') {
   const spinner = ora(' Fetching Facebook video data...').start();
@@ -18,38 +18,29 @@ async function downloadFacebook(url, basePath = 'resultdownload_preniv') {
     const data = response.data;
 
     if (!data || !data.status) {
-      spinner.fail(chalk.red(' Failed to fetch Facebook video data'));
+      spinner.fail(chalk.red(' Failed to fetch Facebook media data'));
       console.log(chalk.gray('   • The API returned an error or invalid response'));
       return;
     }
-    if (!data.data || !data.data.data || data.data.data.length === 0) {
-      spinner.fail(chalk.red(' Invalid video data received'));
-      console.log(chalk.gray('   • The video may be private or unavailable'));
+    if (!data.data || !Array.isArray(data.data) || data.data.length === 0) {
+      spinner.fail(chalk.red(' Invalid media data received'));
+      console.log(chalk.gray('   • The media may be private or unavailable'));
       return;
     }
 
-    spinner.succeed(chalk.green(' Facebook video data fetched successfully!'));
+    spinner.succeed(chalk.green(' Facebook media data fetched successfully!'));
     console.log('');
-    console.log(chalk.cyan(' Video Information:'));
-    console.log(chalk.gray('   • ') + chalk.white(`Title: ${data.data.title || 'No title'}`));
-    console.log(chalk.gray('   • ') + chalk.white(`Thumbnail: ${data.data.thumbnail ? 'Available' : 'Not available'}`));
+    console.log(chalk.cyan(' Media Information:'));
+    console.log(chalk.gray('   • ') + chalk.white(`Found ${data.data.length} quality option(s)`));
     console.log('');
 
-    const uniqueDownloads = [];
-    const seen = new Set();
-    
-    for (const item of data.data.data) {
-      const key = `${item.resolution}-${item.format}`;
-      if (!seen.has(key)) {
-        seen.add(key);
-        uniqueDownloads.push(item);
-      }
-    }
-
-    const downloadChoices = uniqueDownloads.map((item, index) => ({
-      name: ` ${item.resolution} - ${item.format.toUpperCase()}`,
-      value: { url: item.url, resolution: item.resolution, format: item.format, index }
-    }));
+    const downloadChoices = data.data.map((item, index) => {
+      const ext = getFileExtension(item.url);
+      return {
+        name: ` ${item.resolution} - ${ext.toUpperCase()}`,
+        value: { url: item.url, resolution: item.resolution, ext, index }
+      };
+    });
     
     downloadChoices.push({
       name: chalk.gray(' Cancel'),
@@ -70,8 +61,9 @@ async function downloadFacebook(url, basePath = 'resultdownload_preniv') {
       return;
     }
 
-    const downloadSpinner = ora(` Downloading ${selectedDownload.resolution} ${selectedDownload.format}...`).start();
-    const filename = `facebook_${selectedDownload.resolution}_${Date.now()}.${selectedDownload.format}`;
+    const downloadSpinner = ora(` Downloading ${selectedDownload.resolution}...`).start();
+    const safeResolution = selectedDownload.resolution.replace(/[^a-zA-Z0-9]/g, '_');
+    const filename = `facebook_${safeResolution}_${Date.now()}.${selectedDownload.ext}`;
     await downloadFile(selectedDownload.url, filename, downloadSpinner, basePath);
   } catch (error) {
     spinner.fail(chalk.red(' Error fetching Facebook video'));

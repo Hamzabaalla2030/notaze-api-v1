@@ -5,6 +5,26 @@ const chalk = require('chalk');
 
 const MAX_FILE_SIZE = 35 * 1024 * 1024; // 50 MB in bytes
 
+function getFileExtension(url, defaultExt = 'mp4') {
+  try {
+    const tokenMatch = url.match(/token=([^&]+)/);
+    if (tokenMatch && tokenMatch[1]) {
+      const token = tokenMatch[1];
+      const parts = token.split('.');
+      if (parts.length >= 2) {
+        const payload = parts[1];
+        const decoded = JSON.parse(Buffer.from(payload, 'base64').toString());
+        if (decoded.filename && typeof decoded.filename === 'string') {
+          const ext = decoded.filename.split('.').pop().toLowerCase();
+          return ext || defaultExt;
+        }
+      }
+    }
+  } catch (error) {
+  }
+  return defaultExt;
+}
+
 async function checkFileSize(url) {
   try {
     const response = await axios.head(url, { timeout: 10000 });
@@ -60,4 +80,4 @@ async function downloadFile(url, filename, spinner, basePath = 'resultdownload_p
   }
 }
 
-module.exports = { downloadFile, checkFileSize, MAX_FILE_SIZE };
+module.exports = { downloadFile, checkFileSize, getFileExtension, MAX_FILE_SIZE };
