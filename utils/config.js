@@ -11,6 +11,8 @@ const { downloadCapcut } = require('../routes/capcut');
 const { downloadBluesky } = require('../routes/bluesky');
 const { downloadRedNote } = require('../routes/rednote');
 const { downloadThreads } = require('../routes/threads');
+const { downloadKuaishou } = require('../routes/kuaishou');
+const { downloadWeibo } = require('../routes/weibo');
 
 const PLATFORM_CONFIG = [
   {
@@ -128,6 +130,24 @@ const PLATFORM_CONFIG = [
     mediaType: 'video',
     handler: downloadThreads,
     exampleUrl: 'https://www.threads.net/@username/post/ABC123'
+  },
+  {
+    name: 'Kuaishou',
+    command: 'kuaishou',
+    alias: 'ks',
+    domains: ['kuaishou.com', 'ksurl.cn'],
+    mediaType: 'media',
+    handler: downloadKuaishou,
+    exampleUrl: 'https://www.kuaishou.com/short-video/ABC123'
+  },
+  {
+    name: 'Weibo',
+    command: 'weibo',
+    alias: 'wb',
+    domains: ['weibo.com', 'weibo.cn'],
+    mediaType: 'media',
+    handler: downloadWeibo,
+    exampleUrl: 'https://weibo.com/tv/show/ABC123'
   }
 ];
 

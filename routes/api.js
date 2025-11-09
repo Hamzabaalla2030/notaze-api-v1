@@ -14,6 +14,8 @@ const getApi = {
   bluesky: 'https://prenivapi.vercel.app/api/bluesky?url=',
   rednote: 'https://prenivapi.vercel.app/api/rednote?url=',
   threads: 'https://prenivapi.vercel.app/api/threads?url=',
+  kuaishou: 'https://prenivapi.vercel.app/api/kuaishou?url=',
+  weibo: 'https://prenivapi.vercel.app/api/weibo?url=',
 };
 
 module.exports = { getApi, normalizer };
