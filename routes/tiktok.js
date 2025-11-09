@@ -2,7 +2,7 @@ const axios = require('axios');
 const chalk = require('chalk');
 const ora = require('ora');
 const inquirer = require('inquirer');
-const { getApi } = require('./api');
+const { getApi, normalizer } = require('./api');
 const { downloadFile } = require('../utils/download');
 
 async function downloadTikTok(url, basePath = 'resultdownload_preniv') {
@@ -20,11 +20,12 @@ async function downloadTikTok(url, basePath = 'resultdownload_preniv') {
         }
       });
       
-      if (response.data && response.data.status && response.data.data && response.data.data.downloads) {
-        data = response.data;
+      if (response.data && response.data.status && response.data.data) {
+        data = normalizer.normalizeTikTok(response.data.data, 'primary');
         apiVersion = 'default';
       } else {
-        throw new Error('Invalid default response');
+        const errorMsg = response.data?.message || 'Invalid default response';
+        throw new Error(errorMsg);
       }
     } catch (defaultError) {
       spinner.text = ' Fetching TikTok video data (v1 fallback)...';
@@ -35,15 +36,16 @@ async function downloadTikTok(url, basePath = 'resultdownload_preniv') {
         }
       });
       
-      if (response.data && response.data.status && response.data.data && response.data.data.downloads) {
-        data = response.data;
+      if (response.data && response.data.status && response.data.data) {
+        data = normalizer.normalizeTikTok(response.data.data, 'v1');
         apiVersion = 'v1';
       } else {
-        throw new Error('Both default and v1 APIs failed');
+        const errorMsg = response.data?.message || defaultError.message || 'Both default and v1 APIs failed';
+        throw new Error(errorMsg);
       }
     }
 
-    if (!data || !data.status) {
+    if (!data || (!data.downloads.video.length && !data.downloads.audio.length)) {
       spinner.fail(chalk.red(' Failed to fetch TikTok video data'));
       console.log(chalk.gray('   • The API returned an error or invalid response'));
       return;
@@ -52,18 +54,19 @@ async function downloadTikTok(url, basePath = 'resultdownload_preniv') {
     spinner.succeed(chalk.green(` TikTok video data fetched successfully! (using ${apiVersion})`));
     console.log('');
     console.log(chalk.cyan(' Video Information:'));
-    console.log(chalk.gray('   • ') + chalk.white(`Title: ${data.data.title || 'No title'}`));
-    if (data.data.description) {
-      console.log(chalk.gray('   • ') + chalk.white(`Description: ${data.data.description}`));
+    console.log(chalk.gray('   • ') + chalk.white(`Title: ${data.title || 'No title'}`));
+    if (data.author) {
+      console.log(chalk.gray('   • ') + chalk.white(`Author: ${data.author}`));
     }
-    if (data.data.creator) {
-      console.log(chalk.gray('   • ') + chalk.white(`Creator: ${data.data.creator}`));
+    if (data.metadata.audio_title) {
+      console.log(chalk.gray('   • ') + chalk.white(`Audio: ${data.metadata.audio_title}`));
     }
     console.log('');
 
-    const downloadChoices = data.data.downloads.map((item, index) => ({
-      name: ` ${item.text}`,
-      value: { url: item.url, text: item.text, index }
+    const allDownloads = [...data.downloads.video, ...data.downloads.audio];
+    const downloadChoices = allDownloads.map((item, index) => ({
+      name: ` ${item.text || item.quality || 'Download'}`,
+      value: { url: item.url, text: item.text || item.quality, index }
     }));
     
     downloadChoices.push({

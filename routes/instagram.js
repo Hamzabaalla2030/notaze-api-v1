@@ -2,7 +2,7 @@ const axios = require('axios');
 const chalk = require('chalk');
 const ora = require('ora');
 const inquirer = require('inquirer');
-const { getApi } = require('./api');
+const { getApi, normalizer } = require('./api');
 const { downloadFile, getFileExtension } = require('../utils/download');
 
 async function downloadInstagram(url, basePath = 'resultdownload_preniv') {
@@ -15,14 +15,17 @@ async function downloadInstagram(url, basePath = 'resultdownload_preniv') {
         'User-Agent': 'Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.210 Mobile Safari/537.36'
       }
     });
-    const data = response.data;
+    const rawData = response.data;
 
-    if (!data || !data.status) {
+    if (!rawData || !rawData.status) {
       spinner.fail(chalk.red(' Failed to fetch Instagram media data'));
       console.log(chalk.gray('   • The API returned an error or invalid response'));
       return;
     }
-    if (!data.data || !Array.isArray(data.data) || data.data.length === 0) {
+
+    const data = normalizer.normalizeInstagram(rawData.data, 'primary');
+
+    if (!data.media || data.media.length === 0) {
       spinner.fail(chalk.red(' Invalid media data received'));
       console.log(chalk.gray('   • The media may be private or unavailable'));
       return;
@@ -31,17 +34,17 @@ async function downloadInstagram(url, basePath = 'resultdownload_preniv') {
     spinner.succeed(chalk.green(' Instagram media data fetched successfully!'));
     console.log('');
     console.log(chalk.cyan(' Media Information:'));
-    console.log(chalk.gray('   • ') + chalk.white(`Found ${data.data.length} media file(s)`));
+    console.log(chalk.gray('   • ') + chalk.white(`Found ${data.media.length} media file(s)`));
     console.log('');
     
-    if (data.data.length === 1) {
-      const media = data.data[0];
+    if (data.media.length === 1) {
+      const media = data.media[0];
       const downloadSpinner = ora(' Downloading media...').start();
       const extension = getFileExtension(media.url, 'jpg');
       const filename = `instagram_media_${Date.now()}.${extension}`;
       await downloadFile(media.url, filename, downloadSpinner, basePath);
     } else {
-      const downloadChoices = data.data.map((media, index) => {
+      const downloadChoices = data.media.map((media, index) => {
         const ext = getFileExtension(media.url, 'jpg');
         return {
           name: ` Media ${index + 1} (${ext === 'mp4' ? 'Video' : 'Photo'})`,
@@ -69,9 +72,9 @@ async function downloadInstagram(url, basePath = 'resultdownload_preniv') {
         return;
       }
       if (selectedDownload === 'all') {
-        for (let i = 0; i < data.data.length; i++) {
-          const media = data.data[i];
-          const downloadSpinner = ora(` Downloading media ${i + 1}/${data.data.length}...`).start();
+        for (let i = 0; i < data.media.length; i++) {
+          const media = data.media[i];
+          const downloadSpinner = ora(` Downloading media ${i + 1}/${data.media.length}...`).start();
           const extension = getFileExtension(media.url, 'jpg');
           const filename = `instagram_media_${i + 1}_${Date.now()}.${extension}`;
           await downloadFile(media.url, filename, downloadSpinner, basePath);

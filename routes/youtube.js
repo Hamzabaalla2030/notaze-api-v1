@@ -2,7 +2,7 @@ const axios = require('axios');
 const chalk = require('chalk');
 const ora = require('ora');
 const inquirer = require('inquirer');
-const { getApi } = require('./api');
+const { getApi, normalizer } = require('./api');
 const { downloadFile, MAX_FILE_SIZE } = require('../utils/download');
 
 async function downloadYoutube(url, basePath = 'resultdownload_preniv') {
@@ -16,15 +16,17 @@ async function downloadYoutube(url, basePath = 'resultdownload_preniv') {
       }
     });
 
-    const data = response.data;
+    const rawData = response.data;
 
-    if (!data || !data.status) {
+    if (!rawData || !rawData.status) {
       spinner.fail(chalk.red(' Failed to fetch YouTube video data'));
       console.log(chalk.gray('   • The API returned an error or invalid response'));
       return;
     }
 
-    if (!data.data || !data.data.formats || data.data.formats.length === 0) {
+    const data = normalizer.normalizeYouTube(rawData.data, 'primary');
+
+    if (!data.downloads.video.length && !data.downloads.audio.length) {
       spinner.fail(chalk.red(' No download formats available'));
       console.log(chalk.gray('   • The video may be unavailable or restricted'));
       return;
@@ -33,13 +35,15 @@ async function downloadYoutube(url, basePath = 'resultdownload_preniv') {
     spinner.succeed(chalk.green(' YouTube video data fetched successfully!'));
     console.log('');
     console.log(chalk.cyan(' Video Information:'));
-    console.log(chalk.gray('   • ') + chalk.white(`Title: ${data.data.title || 'No title'}`));
-    console.log(chalk.gray('   • ') + chalk.white(`Duration: ${Math.floor(data.data.duration / 60)}:${String(data.data.duration % 60).padStart(2, '0')}`));
+    console.log(chalk.gray('   • ') + chalk.white(`Title: ${data.title || 'No title'}`));
+    if (data.duration) {
+      console.log(chalk.gray('   • ') + chalk.white(`Duration: ${Math.floor(data.duration / 60)}:${String(data.duration % 60).padStart(2, '0')}`));
+    }
     console.log('');
 
-    const videoWithAudio = data.data.formats.filter(f => f.type === 'video_with_audio');
-    const videoOnly = data.data.formats.filter(f => f.type === 'video');
-    const audioOnly = data.data.formats.filter(f => f.type === 'audio');
+    const videoWithAudio = data.downloads.video.filter(f => f.type === 'video_with_audio');
+    const videoOnly = data.downloads.video.filter(f => f.type === 'video');
+    const audioOnly = data.downloads.audio;
 
     const downloadChoices = [];
 
@@ -51,7 +55,7 @@ async function downloadYoutube(url, basePath = 'resultdownload_preniv') {
       videoWithAudio.forEach((format, index) => {
         downloadChoices.push({
           name: `   ${format.quality}`,
-          value: { url: format.url, type: 'video', format: format.extension, quality: format.quality, index }
+          value: { url: format.url, type: 'video', format: format.format, quality: format.quality, index }
         });
       });
     }
@@ -64,7 +68,7 @@ async function downloadYoutube(url, basePath = 'resultdownload_preniv') {
       videoOnly.forEach((format, index) => {
         downloadChoices.push({
           name: `   ${format.quality}`,
-          value: { url: format.url, type: 'video', format: format.extension, quality: format.quality, index }
+          value: { url: format.url, type: 'video', format: format.format, quality: format.quality, index }
         });
       });
     }
@@ -77,7 +81,7 @@ async function downloadYoutube(url, basePath = 'resultdownload_preniv') {
       audioOnly.forEach((format, index) => {
         downloadChoices.push({
           name: `   ${format.quality}`,
-          value: { url: format.url, type: 'audio', format: format.extension, quality: format.quality, index }
+          value: { url: format.url, type: 'audio', format: format.format, quality: format.quality, index }
         });
       });
     }
@@ -104,12 +108,12 @@ async function downloadYoutube(url, basePath = 'resultdownload_preniv') {
 
     const downloadSpinner = ora(` Downloading ${selectedDownload.type}...`).start();
     
-    const safeTitle = data.data.title
+    const safeTitle = data.title
       .replace(/[<>:"/\\|?*]/g, '')
       .substring(0, 50)
       .trim();
-    
-    const filename = `${safeTitle}_${selectedDownload.quality.replace(/[^a-zA-Z0-9]/g, '_')}.${selectedDownload.format}`;
+    const extension = selectedDownload.format || (selectedDownload.type === 'audio' ? 'mp3' : 'mp4');
+    const filename = `${safeTitle}_${selectedDownload.quality.replace(/[^a-zA-Z0-9]/g, '_')}.${extension}`;
     const maxSize = selectedDownload.type === 'video' ? MAX_FILE_SIZE : null;
     
     await downloadFile(selectedDownload.url, filename, downloadSpinner, basePath, maxSize);

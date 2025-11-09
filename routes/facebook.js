@@ -2,7 +2,7 @@ const axios = require('axios');
 const chalk = require('chalk');
 const ora = require('ora');
 const inquirer = require('inquirer');
-const { getApi } = require('./api');
+const { getApi, normalizer } = require('./api');
 const { downloadFile, getFileExtension } = require('../utils/download');
 
 async function downloadFacebook(url, basePath = 'resultdownload_preniv') {
@@ -15,14 +15,17 @@ async function downloadFacebook(url, basePath = 'resultdownload_preniv') {
         'User-Agent': 'Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.210 Mobile Safari/537.36'
       }
     });
-    const data = response.data;
+    const rawData = response.data;
 
-    if (!data || !data.status) {
+    if (!rawData || !rawData.status) {
       spinner.fail(chalk.red(' Failed to fetch Facebook media data'));
       console.log(chalk.gray('   • The API returned an error or invalid response'));
       return;
     }
-    if (!data.data || !Array.isArray(data.data) || data.data.length === 0) {
+
+    const data = normalizer.normalizeFacebook(rawData.data, 'primary');
+
+    if (!data.downloads || data.downloads.length === 0) {
       spinner.fail(chalk.red(' Invalid media data received'));
       console.log(chalk.gray('   • The media may be private or unavailable'));
       return;
@@ -31,14 +34,14 @@ async function downloadFacebook(url, basePath = 'resultdownload_preniv') {
     spinner.succeed(chalk.green(' Facebook media data fetched successfully!'));
     console.log('');
     console.log(chalk.cyan(' Media Information:'));
-    console.log(chalk.gray('   • ') + chalk.white(`Found ${data.data.length} quality option(s)`));
+    console.log(chalk.gray('   • ') + chalk.white(`Found ${data.downloads.length} quality option(s)`));
     console.log('');
 
-    const downloadChoices = data.data.map((item, index) => {
+    const downloadChoices = data.downloads.map((item, index) => {
       const ext = getFileExtension(item.url);
       return {
-        name: ` ${item.resolution} - ${ext.toUpperCase()}`,
-        value: { url: item.url, resolution: item.resolution, ext, index }
+        name: ` ${item.resolution || item.quality} - ${ext.toUpperCase()}`,
+        value: { url: item.url, resolution: item.resolution || item.quality, ext, index }
       };
     });
     

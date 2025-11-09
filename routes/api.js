@@ -1,3 +1,5 @@
+const normalizer = require('../utils/normalizer');
+
 const getApi = {
   tiktok: 'https://prenivapi.vercel.app/api/tiktok?url=',
   tiktokV1: 'https://prenivapi.vercel.app/api/tiktokv1?url=',
@@ -13,5 +15,4 @@ const getApi = {
   bluesky: 'https://prenivapi.vercel.app/api/bluesky?url=',
 };
 
-
-module.exports = { getApi };
+module.exports = { getApi, normalizer };
