@@ -134,21 +134,6 @@ Simply paste any of these URLs in interactive mode:
 - **YouTube**: `https://www.youtube.com/watch?v=ABC123` or `https://youtu.be/ABC123`
 - **CapCut**: `https://www.capcut.com/tv2/ABC123/`
 
-### Download Organization
-
-Downloaded files are organized by platform with timestamps:
-
-- **TikTok**: `tiktok_video_[timestamp].mp4` or `tiktok_audio_[timestamp].mp3`
-- **Facebook**: `facebook_[quality]_[timestamp].[format]`
-- **Instagram**: `instagram_media_[number]_[timestamp].[extension]`
-- **Twitter**: `twitter_video_[quality]p_[timestamp].mp4`
-- **Douyin**: `douyin_video_[timestamp].mp4`
-- **Spotify**: `spotify_audio_[timestamp].mp3` or `spotify_image_[timestamp].jpg`
-- **Pinterest**: `pinterest_[pin_id]_[quality].[extension]`
-- **Apple Music**: `applemusic_[artist]_[type]_[timestamp].[extension]`
-- **YouTube**: `youtube_[title]_[quality].[extension]`
-- **CapCut**: `capcut_[unique_id]_[quality]_[timestamp].mp4`
-
 All files are saved to the specified directory (default: `resultdownload_preniv`).
 
 ### Cross-Platform Compatibility

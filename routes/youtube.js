@@ -3,7 +3,7 @@ const chalk = require('chalk');
 const ora = require('ora');
 const inquirer = require('inquirer');
 const { getApi } = require('./api');
-const { downloadFile } = require('../utils/download');
+const { downloadFile, MAX_FILE_SIZE } = require('../utils/download');
 
 async function downloadYoutube(url, basePath = 'resultdownload_preniv') {
   const spinner = ora(' Fetching YouTube video data...').start();
@@ -110,8 +110,9 @@ async function downloadYoutube(url, basePath = 'resultdownload_preniv') {
       .trim();
     
     const filename = `${safeTitle}_${selectedDownload.quality.replace(/[^a-zA-Z0-9]/g, '_')}.${selectedDownload.format}`;
+    const maxSize = selectedDownload.type === 'video' ? MAX_FILE_SIZE : null;
     
-    await downloadFile(selectedDownload.url, filename, downloadSpinner, basePath);
+    await downloadFile(selectedDownload.url, filename, downloadSpinner, basePath, maxSize);
 
   } catch (error) {
     spinner.fail(chalk.red(' Error fetching YouTube video'));
