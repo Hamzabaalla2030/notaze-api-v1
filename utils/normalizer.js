@@ -212,17 +212,41 @@ class Normalizer {
       };
     }
     
-    return {
-      title: data.title || null,
-      thumbnail: data.thumbnail || null,
-      author: data.author || null,
-      duration: data.duration || null,
-      album: data.album || null,
-      downloads: data.downloadLinks?.map(link => ({
+    let downloads = [];
+    
+    if (data.downloadLinks && Array.isArray(data.downloadLinks)) {
+      downloads = data.downloadLinks.map(link => ({
         url: link.url,
         quality: link.quality || 'unknown',
         format: link.extension || 'mp3'
-      })) || []
+      }));
+    } else if (data.downloads && Array.isArray(data.downloads)) {
+      downloads = data.downloads.map(d => ({
+        url: d.url,
+        quality: d.quality || 'unknown',
+        format: d.format || d.ext || 'mp3'
+      }));
+    } else if (data.formats && Array.isArray(data.formats)) {
+      downloads = data.formats.map(f => ({
+        url: f.url,
+        quality: f.quality || 'unknown',
+        format: f.ext || f.format || 'mp3'
+      }));
+    } else if (data.url) {
+      downloads = [{
+        url: data.url,
+        quality: 'default',
+        format: 'mp3'
+      }];
+    }
+    
+    return {
+      title: data.title || null,
+      thumbnail: data.thumbnail || null,
+      author: data.author || data.artist || null,
+      duration: data.duration || null,
+      album: data.album || null,
+      downloads: downloads
     };
   }
 
