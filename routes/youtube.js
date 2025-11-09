@@ -116,18 +116,18 @@ async function downloadYoutube(url, basePath = 'resultdownload_preniv') {
   } catch (error) {
     spinner.fail(chalk.red(' Error fetching YouTube video'));
     if (error.code === 'ECONNABORTED') {
-      console.log(chalk.gray('   • Request timeout - please try again'));
+      console.log(chalk.gray(' • Request timeout - please try again'));
     } else if (error.response) {
-      console.log(chalk.gray(`   • API Error: ${error.response.status}`));
+      console.log(chalk.gray(` • API Error: ${error.response.status}`));
       if (error.response.data && error.response.data.message) {
-        console.log(chalk.gray(`   • ${error.response.data.message}`));
+        console.log(chalk.gray(` • ${error.response.data.message}`));
       }
     } else if (error.request) {
-      console.log(chalk.gray('   • Network error - please check your connection'));
+      console.log(chalk.gray(' • Network error - please check your connection'));
     } else {
-      console.log(chalk.gray(`   • ${error.message}`));
+      console.log(chalk.gray(` • ${error.message}`));
     }
   }
 }
 
-module.exports = { downloadYoutube };
+module.exports = { downloadYouTube: downloadYoutube };
