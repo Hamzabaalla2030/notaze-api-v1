@@ -1,11 +1,12 @@
-# Prenivdlapp CLI - Social Media Video Downloader
+# PRENIVDL - Universal Social Media Downloader
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+![Version](https://img.shields.io/github/package-json/v/arsya371/prenivdlapp-cli)
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen)](https://nodejs.org/)
 [![GitHub Stars](https://img.shields.io/github/stars/arsya371/prenivdlapp-cli?style=social)](https://github.com/arsya371/prenivdlapp-cli)
 [![GitHub Forks](https://img.shields.io/github/forks/arsya371/prenivdlapp-cli?style=social)](https://github.com/arsya371/prenivdlapp-cli/fork)
 
-**Free & Open Source Social Media Downloader CLI** - Download videos, images, and audio from 15+ platforms including TikTok, Instagram, Facebook, Twitter/X, YouTube, Spotify, RedNote/Xiaohongshu, Threads, Kuaishou, Weibo, and more.
+**PRENIVDL - Universal Social Media Downloader CLI.** Download videos, images, audio from TikTok, Instagram, YouTube, Twitter/X, Facebook, Spotify, RedNote, Threads, Kuaishou, Weibo & more. Cross-platform: Windows | Linux | macOS | Termux. Free & open-source.
 
 ## Key Features
 
