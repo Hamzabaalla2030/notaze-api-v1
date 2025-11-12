@@ -30,9 +30,8 @@ function showBanner() {
   console.log(chalk.greenBright('    Github: https://github.com/arsya371/prenivdlapp-cli (Free)'));
   console.log('');
   console.log(chalk.gray('  Tips for getting started:'));
-  console.log(chalk.gray('    1. Ask questions, edit files, or run commands.'));
-  console.log(chalk.gray('    2. Be specific for the best results.'));
-  console.log(chalk.gray('    3. ') + chalk.magenta('/help') + chalk.gray(' for more information.'));
+  console.log(chalk.gray('    1. Paste a social media URL to download content.'));
+  console.log(chalk.gray('    2. ') + chalk.magenta('/help') + chalk.gray(' for more information.'));
   console.log('');
 }
 
