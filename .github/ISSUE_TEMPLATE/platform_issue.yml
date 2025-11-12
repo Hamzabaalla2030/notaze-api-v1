@@ -21,10 +21,15 @@ body:
         - Facebook
         - Instagram
         - Twitter/X
+        - YouTube
         - Douyin
         - Spotify
         - Apple Music
         - Pinterest
+        - Kuaishou
+        - Weibo
+        - Bluesky
+        - Capcut
     validations:
       required: true
 

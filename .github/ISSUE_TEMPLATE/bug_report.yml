@@ -22,7 +22,7 @@ body:
         - label: I am using the latest version of prenivdlapp-cli
           required: true
         - label: I have read the documentation
-          required: false
+          required: true
 
   - type: input
     id: version
@@ -43,11 +43,15 @@ body:
         - Facebook
         - Instagram
         - Twitter/X
+        - YouTube
         - Douyin
         - Spotify
         - Apple Music
         - Pinterest
-        - Other/General
+        - Kuaishou
+        - Weibo
+        - Bluesky
+        - Capcut
     validations:
       required: true
 
@@ -96,7 +100,7 @@ body:
   - type: textarea
     id: url-example
     attributes:
-      label: Example URL (if applicable)
+      label: URL Platform (if applicable)
       description: If the issue is with a specific URL, please provide it (or a similar example)
       placeholder: https://www.tiktok.com/@user/video/123...
     validations:
