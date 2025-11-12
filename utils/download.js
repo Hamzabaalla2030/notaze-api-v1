@@ -2,8 +2,7 @@ const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
 const chalk = require('chalk');
-
-const MAX_FILE_SIZE = 35 * 1024 * 1024; // 50 MB in bytes
+const { checkFileSize, MAX_FILE_SIZE } = require('./functions');
 
 function getFileExtension(url, defaultExt = 'mp4') {
   try {
@@ -23,20 +22,6 @@ function getFileExtension(url, defaultExt = 'mp4') {
   } catch (error) {
   }
   return defaultExt;
-}
-
-async function checkFileSize(url) {
-  try {
-    const response = await axios.head(url, { timeout: 10000 });
-    const contentLength = parseInt(response.headers['content-length'], 10);
-    return {
-      size: contentLength,
-      sizeInMB: (contentLength / (1024 * 1024)).toFixed(2),
-      exceedsLimit: contentLength > MAX_FILE_SIZE
-    };
-  } catch (error) {
-    return null;
-  }
 }
 
 async function downloadFile(url, filename, spinner, basePath = 'resultdownload_preniv', maxSize = null) {

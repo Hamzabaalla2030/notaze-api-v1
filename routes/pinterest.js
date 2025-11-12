@@ -1,21 +1,20 @@
-const axios = require('axios');
 const chalk = require('chalk');
 const ora = require('ora');
 const inquirer = require('inquirer');
 const { getApi } = require('./api');
 const { downloadFile } = require('../utils/download');
+const { fetchJson, handleError, generateFilename, getSelectedOption, buildDownloadChoices } = require('../utils/functions');
 
 async function downloadPinterest(url, basePath = 'resultdownload_preniv') {
   const spinner = ora(' Fetching Pinterest media data...').start();
   
   try {
-    const response = await axios.get(`${getApi.pinterest}${encodeURIComponent(url)}`, {
+    const data = await fetchJson(`${getApi.pinterest}${encodeURIComponent(url)}`, {
       timeout: 30000,
       headers: {
         'User-Agent': 'Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.210 Mobile Safari/537.36'
       }
     });
-    const data = response.data;
 
     if (!data || !data.success) {
       spinner.fail(chalk.red(' Failed to fetch Pinterest media data'));
@@ -40,19 +39,14 @@ async function downloadPinterest(url, basePath = 'resultdownload_preniv') {
     if (data.data.downloads.length === 1) {
       const media = data.data.downloads[0];
       const downloadSpinner = ora(' Downloading media...').start();
-      const extension = media.format.toLowerCase();
-      const filename = `pinterest_${Date.now()}.${extension}`;
-      await downloadFile(media.url, filename, downloadSpinner, basePath);
-    } else {
-      const downloadChoices = data.data.downloads.map((media) => ({
-        name: ` ${media.quality} - ${media.format}`,
-        value: media
-      }));
-      
-      downloadChoices.push({
-        name: ' Download All Qualities',
-        value: 'all'
+      const options = getSelectedOption('pinterest', media);
+      const filename = generateFilename('pinterest', {
+        quality: media.quality,
+        ext: media.format.toLowerCase()
       });
+      await downloadFile(options.url, filename, downloadSpinner, basePath);
+    } else {
+      const downloadChoices = buildDownloadChoices('pinterest', { downloads: data.data.downloads });
       downloadChoices.push({
         name: chalk.gray(' Cancel'),
         value: 'cancel'
@@ -76,30 +70,25 @@ async function downloadPinterest(url, basePath = 'resultdownload_preniv') {
         for (let i = 0; i < data.data.downloads.length; i++) {
           const media = data.data.downloads[i];
           const downloadSpinner = ora(` Downloading ${media.quality} (${i + 1}/${data.data.downloads.length})...`).start();
-          const extension = media.format.toLowerCase();
-          const safeQuality = media.quality.replace(/[^a-zA-Z0-9]/g, '_');
-          const filename = `pinterest_${safeQuality}_${Date.now()}.${extension}`;
-          await downloadFile(media.url, filename, downloadSpinner, basePath);
+          const options = getSelectedOption('pinterest', media);
+          const filename = generateFilename('pinterest', {
+            quality: media.quality,
+            ext: media.format.toLowerCase()
+          });
+          await downloadFile(options.url, filename, downloadSpinner, basePath);
         }
       } else {
         const downloadSpinner = ora(' Downloading selected media...').start();
-        const extension = selectedDownload.format.toLowerCase();
-        const safeQuality = selectedDownload.quality.replace(/[^a-zA-Z0-9]/g, '_');
-        const filename = `pinterest_${safeQuality}_${Date.now()}.${extension}`;
-        await downloadFile(selectedDownload.url, filename, downloadSpinner, basePath);
+        const options = getSelectedOption('pinterest', selectedDownload);
+        const filename = generateFilename('pinterest', {
+          quality: selectedDownload.quality,
+          ext: selectedDownload.format.toLowerCase()
+        });
+        await downloadFile(options.url, filename, downloadSpinner, basePath);
       }
     }
   } catch (error) {
-    spinner.fail(chalk.red(' Error fetching Pinterest media'));
-    if (error.code === 'ECONNABORTED') {
-      console.log(chalk.gray(' • Request timeout - please try again'));
-    } else if (error.response) {
-      console.log(chalk.gray(` • API Error: ${error.response.status}`));
-    } else if (error.request) {
-      console.log(chalk.gray(' • Network error - please check your connection'));
-    } else {
-      console.log(chalk.gray(` • ${error.message}`));
-    }
+    handleError(error, spinner);
   }
 }
 

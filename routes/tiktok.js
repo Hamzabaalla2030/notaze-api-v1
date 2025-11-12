@@ -1,9 +1,9 @@
-const axios = require('axios');
 const chalk = require('chalk');
 const ora = require('ora');
 const inquirer = require('inquirer');
 const { getApi, normalizer } = require('./api');
 const { downloadFile } = require('../utils/download');
+const { fetchJson, handleError, generateFilename, getSelectedOption, buildDownloadChoices } = require('../utils/functions');
 
 async function downloadTikTok(url, basePath = 'resultdownload_preniv') {
   const spinner = ora(' Fetching TikTok video data...').start();
@@ -13,34 +13,34 @@ async function downloadTikTok(url, basePath = 'resultdownload_preniv') {
   
   try {
     try {
-      const response = await axios.get(`${getApi.tiktok}${encodeURIComponent(url)}`, {
+      const response = await fetchJson(`${getApi.tiktok}${encodeURIComponent(url)}`, {
         timeout: 30000,
         headers: {
           'User-Agent': 'Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.210 Mobile Safari/537.36'
         }
       });
       
-      if (response.data && response.data.status && response.data.data) {
-        data = normalizer.normalizeTikTok(response.data.data, 'primary');
+      if (response && response.status && response.data) {
+        data = normalizer.normalizeTikTok(response.data, 'primary');
         apiVersion = 'default';
       } else {
-        const errorMsg = response.data?.message || 'Invalid default response';
+        const errorMsg = response?.message || 'Invalid default response';
         throw new Error(errorMsg);
       }
     } catch (defaultError) {
       spinner.text = ' Fetching TikTok video data (v1 fallback)...';
-      const response = await axios.get(`${getApi.tiktokV1}${encodeURIComponent(url)}`, {
+      const response = await fetchJson(`${getApi.tiktokV1}${encodeURIComponent(url)}`, {
         timeout: 30000,
         headers: {
           'User-Agent': 'Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.210 Mobile Safari/537.36'
         }
       });
       
-      if (response.data && response.data.status && response.data.data) {
-        data = normalizer.normalizeTikTok(response.data.data, 'v1');
+      if (response && response.status && response.data) {
+        data = normalizer.normalizeTikTok(response.data, 'v1');
         apiVersion = 'v1';
       } else {
-        const errorMsg = response.data?.message || defaultError.message || 'Both default and v1 APIs failed';
+        const errorMsg = response?.message || defaultError.message || 'Both default and v1 APIs failed';
         throw new Error(errorMsg);
       }
     }
@@ -63,35 +63,11 @@ async function downloadTikTok(url, basePath = 'resultdownload_preniv') {
     }
     console.log('');
 
-    const downloadChoices = [];
-
-    data.downloads.video.forEach((url, index) => {
-      downloadChoices.push({
-        name: ` Video ${index + 1}`,
-        value: { url, text: `Video ${index + 1}`, type: 'video' }
-      });
+    const downloadChoices = buildDownloadChoices('tiktok', { 
+      videos: data.downloads.video, 
+      audios: data.downloads.audio, 
+      images: data.downloads.image 
     });
-    
-    data.downloads.audio.forEach((url, index) => {
-      downloadChoices.push({
-        name: ` Audio ${index + 1}`,
-        value: { url, text: `Audio ${index + 1}`, type: 'audio' }
-      });
-    });
-    
-    data.downloads.image.forEach((url, index) => {
-      downloadChoices.push({
-        name: ` Image ${index + 1}`,
-        value: { url, text: `Image ${index + 1}`, type: 'image' }
-      });
-    });
-    
-    if (data.downloads.image.length > 1) {
-      downloadChoices.push({
-        name: ` Download All Images (${data.downloads.image.length})`,
-        value: { urls: data.downloads.image, text: `All Images`, type: 'all-images' }
-      });
-    }
     
     downloadChoices.push({
       name: chalk.gray(' Cancel'),
@@ -138,6 +114,7 @@ async function downloadTikTok(url, basePath = 'resultdownload_preniv') {
     }
     
     const downloadSpinner = ora(` Downloading ${selectedDownload.text}...`).start();
+    const options = getSelectedOption('tiktok', selectedDownload);
     let extension = 'mp4';
     if (selectedDownload.type === 'audio') {
       extension = 'mp3';
@@ -151,19 +128,13 @@ async function downloadTikTok(url, basePath = 'resultdownload_preniv') {
         extension = 'webp';
       }
     }
-    const filename = `tiktok_${Date.now()}.${extension}`;
-    await downloadFile(selectedDownload.url, filename, downloadSpinner, basePath);
+    const filename = generateFilename('tiktok', {
+      type: selectedDownload.type,
+      ext: extension
+    });
+    await downloadFile(options.url, filename, downloadSpinner, basePath);
   } catch (error) {
-    spinner.fail(chalk.red(' Error fetching TikTok video'));
-    if (error.code === 'ECONNABORTED') {
-      console.log(chalk.gray(' • Request timeout - please try again'));
-    } else if (error.response) {
-      console.log(chalk.gray(` • API Error: ${error.response.status}`));
-    } else if (error.request) {
-      console.log(chalk.gray(' • Network error - please check your connection'));
-    } else {
-      console.log(chalk.gray(` • ${error.message}`));
-    }
+    handleError(error, spinner);
   }
 }
 

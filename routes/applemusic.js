@@ -1,21 +1,20 @@
-const axios = require('axios');
 const chalk = require('chalk');
 const ora = require('ora');
 const inquirer = require('inquirer');
 const { getApi } = require('./api');
 const { downloadFile, MAX_FILE_SIZE } = require('../utils/download');
+const { fetchJson, handleError, generateFilename, getSelectedOption } = require('../utils/functions');
 
 async function downloadAppleMusic(url, basePath = 'resultdownload_preniv') {
   const spinner = ora(' Fetching Apple Music track data...').start();
   
   try {
-    const response = await axios.get(`${getApi.applemusic}${encodeURIComponent(url)}`, {
+    const data = await fetchJson(`${getApi.applemusic}${encodeURIComponent(url)}`, {
       timeout: 30000,
       headers: {
         'User-Agent': 'Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.210 Mobile Safari/537.36'
       }
     });
-    const data = response.data;
 
     if (!data || !data.status) {
       spinner.fail(chalk.red(' Failed to fetch Apple Music track data'));
@@ -66,24 +65,15 @@ async function downloadAppleMusic(url, basePath = 'resultdownload_preniv') {
     }
 
     const downloadSpinner = ora(` Downloading ${selectedDownload.type}...`).start();
-    const extension = selectedDownload.type === 'audio' ? 'mp3' : 'jpg';
-    const artistName = data.data.artist || 'AppleMusic';
-    const sanitizedArtist = artistName.replace(/[^a-z0-9]/gi, '_');
-    const filename = `applemusic_${sanitizedArtist}_${selectedDownload.type}_${Date.now()}.${extension}`;
-    const maxSize = selectedDownload.type === 'audio' ? MAX_FILE_SIZE : null;
-    await downloadFile(selectedDownload.url, filename, downloadSpinner, basePath, maxSize);
+    const options = getSelectedOption('applemusic', selectedDownload);
+    const filename = generateFilename('applemusic', {
+      artist: data.data.artist,
+      type: selectedDownload.type
+    });
+    await downloadFile(options.url, filename, downloadSpinner, basePath, options.maxSize);
     
   } catch (error) {
-    spinner.fail(chalk.red(' Error fetching Apple Music track'));
-    if (error.code === 'ECONNABORTED') {
-      console.log(chalk.gray(' • Request timeout - please try again'));
-    } else if (error.response) {
-      console.log(chalk.gray(` • API Error: ${error.response.status}`));
-    } else if (error.request) {
-      console.log(chalk.gray(' • Network error - please check your connection'));
-    } else {
-      console.log(chalk.gray(` • ${error.message}`));
-    }
+    handleError(error, spinner);
   }
 }
 

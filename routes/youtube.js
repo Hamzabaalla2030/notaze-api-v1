@@ -1,22 +1,20 @@
-const axios = require('axios');
 const chalk = require('chalk');
 const ora = require('ora');
 const inquirer = require('inquirer');
 const { getApi, normalizer } = require('./api');
 const { downloadFile, MAX_FILE_SIZE } = require('../utils/download');
+const { fetchJson, handleError, generateFilename, getSelectedOption, buildDownloadChoices } = require('../utils/functions');
 
 async function downloadYoutube(url, basePath = 'resultdownload_preniv') {
   const spinner = ora(' Fetching YouTube video data...').start();
   
   try {
-    const response = await axios.get(`${getApi.youtube}${encodeURIComponent(url)}`, {
+    const rawData = await fetchJson(`${getApi.youtube}${encodeURIComponent(url)}`, {
       timeout: 30000,
       headers: {
         'User-Agent': 'Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.210 Mobile Safari/537.36'
       }
     });
-
-    const rawData = response.data;
 
     if (!rawData || !rawData.status) {
       spinner.fail(chalk.red(' Failed to fetch YouTube video data'));
@@ -45,47 +43,8 @@ async function downloadYoutube(url, basePath = 'resultdownload_preniv') {
     const videoOnly = data.downloads.video.filter(f => f.type === 'video');
     const audioOnly = data.downloads.audio;
 
-    const downloadChoices = [];
-
-    if (videoWithAudio.length > 0) {
-      downloadChoices.push({
-        name: chalk.bold.cyan(' Video with Audio'),
-        disabled: true
-      });
-      videoWithAudio.forEach((format, index) => {
-        downloadChoices.push({
-          name: `   ${format.quality}`,
-          value: { url: format.url, type: 'video', format: format.format, quality: format.quality, index }
-        });
-      });
-    }
-
-    if (videoOnly.length > 0) {
-      downloadChoices.push({
-        name: chalk.bold.yellow(' Video Only (no audio)'),
-        disabled: true
-      });
-      videoOnly.forEach((format, index) => {
-        downloadChoices.push({
-          name: `   ${format.quality}`,
-          value: { url: format.url, type: 'video', format: format.format, quality: format.quality, index }
-        });
-      });
-    }
-
-    if (audioOnly.length > 0) {
-      downloadChoices.push({
-        name: chalk.bold.green(' Audio Only'),
-        disabled: true
-      });
-      audioOnly.forEach((format, index) => {
-        downloadChoices.push({
-          name: `   ${format.quality}`,
-          value: { url: format.url, type: 'audio', format: format.format, quality: format.quality, index }
-        });
-      });
-    }
-
+    const downloadChoices = buildDownloadChoices('youtube', { videoWithAudio, videoOnly, audioOnly });
+    
     downloadChoices.push({
       name: chalk.gray(' Cancel'),
       value: 'cancel'
@@ -107,31 +66,16 @@ async function downloadYoutube(url, basePath = 'resultdownload_preniv') {
     }
 
     const downloadSpinner = ora(` Downloading ${selectedDownload.type}...`).start();
-    
-    const safeTitle = data.title
-      .replace(/[<>:"/\\|?*]/g, '')
-      .substring(0, 50)
-      .trim();
-    const extension = selectedDownload.format || (selectedDownload.type === 'audio' ? 'mp3' : 'mp4');
-    const filename = `${safeTitle}_${selectedDownload.quality.replace(/[^a-zA-Z0-9]/g, '_')}.${extension}`;
-    const maxSize = selectedDownload.type === 'video' ? MAX_FILE_SIZE : null;
-    
-    await downloadFile(selectedDownload.url, filename, downloadSpinner, basePath, maxSize);
+    const options = getSelectedOption('youtube', selectedDownload);
+    const filename = generateFilename('youtube', {
+      title: data.title,
+      quality: selectedDownload.quality,
+      ext: selectedDownload.format
+    });
+    await downloadFile(options.url, filename, downloadSpinner, basePath, options.maxSize);
 
   } catch (error) {
-    spinner.fail(chalk.red(' Error fetching YouTube video'));
-    if (error.code === 'ECONNABORTED') {
-      console.log(chalk.gray(' • Request timeout - please try again'));
-    } else if (error.response) {
-      console.log(chalk.gray(` • API Error: ${error.response.status}`));
-      if (error.response.data && error.response.data.message) {
-        console.log(chalk.gray(` • ${error.response.data.message}`));
-      }
-    } else if (error.request) {
-      console.log(chalk.gray(' • Network error - please check your connection'));
-    } else {
-      console.log(chalk.gray(` • ${error.message}`));
-    }
+    handleError(error, spinner);
   }
 }
 

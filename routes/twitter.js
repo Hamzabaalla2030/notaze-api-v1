@@ -1,21 +1,20 @@
-const axios = require('axios');
 const chalk = require('chalk');
 const ora = require('ora');
 const inquirer = require('inquirer');
 const { getApi } = require('./api');
 const { downloadFile } = require('../utils/download');
+const { fetchJson, handleError, generateFilename, getSelectedOption, buildDownloadChoices } = require('../utils/functions');
 
 async function downloadTwitter(url, basePath = 'resultdownload_preniv') {
   const spinner = ora(' Fetching Twitter video data...').start();
 
   try {
-    const response = await axios.get(`${getApi.twitter}${encodeURIComponent(url)}`, {
+    const data = await fetchJson(`${getApi.twitter}${encodeURIComponent(url)}`, {
       timeout: 30000,
       headers: {
         'User-Agent': 'Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.210 Mobile Safari/537.36'
       }
     });
-    const data = response.data;
 
     if (!data || !data.status) {
       spinner.fail(chalk.red(' Failed to fetch Twitter video data'));
@@ -37,13 +36,13 @@ async function downloadTwitter(url, basePath = 'resultdownload_preniv') {
 
     if (data.media.length === 1) {
       const downloadSpinner = ora(' Downloading video...').start();
-      const filename = `twitter_video_${data.media[0].quality}p_${Date.now()}.mp4`;
-      await downloadFile(data.media[0].url, filename, downloadSpinner, basePath);
+      const options = getSelectedOption('twitter', { url: data.media[0].url, quality: data.media[0].quality });
+      const filename = generateFilename('twitter', {
+        quality: data.media[0].quality
+      });
+      await downloadFile(options.url, filename, downloadSpinner, basePath);
     } else {
-      const downloadChoices = data.media.map((item, index) => ({
-        name: ` ${item.quality}p`,
-        value: { url: item.url, quality: item.quality, index }
-      }));
+      const downloadChoices = buildDownloadChoices('twitter', { media: data.media });
       
       downloadChoices.push({
         name: chalk.gray(' Cancel'),
@@ -65,20 +64,14 @@ async function downloadTwitter(url, basePath = 'resultdownload_preniv') {
       }
       
       const downloadSpinner = ora(` Downloading ${selectedDownload.quality}p video...`).start();
-      const filename = `twitter_video_${selectedDownload.quality}p_${Date.now()}.mp4`;
-      await downloadFile(selectedDownload.url, filename, downloadSpinner, basePath);
+      const options = getSelectedOption('twitter', selectedDownload);
+      const filename = generateFilename('twitter', {
+        quality: selectedDownload.quality
+      });
+      await downloadFile(options.url, filename, downloadSpinner, basePath);
     }
   } catch (error) {
-    spinner.fail(chalk.red(' Error fetching Twitter video'));
-    if (error.code === 'ECONNABORTED') {
-      console.log(chalk.gray(' • Request timeout - please try again'));
-    } else if (error.response) {
-      console.log(chalk.gray(` • API Error: ${error.response.status}`));
-    } else if (error.request) {
-      console.log(chalk.gray(' • Network error - please check your connection'));
-    } else {
-      console.log(chalk.gray(` • ${error.message}`));
-    }
+    handleError(error, spinner);
   }
 }
 

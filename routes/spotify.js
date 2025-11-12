@@ -1,21 +1,20 @@
-const axios = require('axios');
 const chalk = require('chalk');
 const ora = require('ora');
 const inquirer = require('inquirer');
 const { getApi, normalizer } = require('./api');
 const { downloadFile, MAX_FILE_SIZE } = require('../utils/download');
+const { fetchJson, handleError, generateFilename, getSelectedOption } = require('../utils/functions');
 
 async function downloadSpotify(url, basePath = 'resultdownload_preniv') {
   const spinner = ora(' Fetching Spotify track data...').start();
   
   try {
-    const response = await axios.get(`${getApi.spotify}${encodeURIComponent(url)}`, {
+    const rawData = await fetchJson(`${getApi.spotify}${encodeURIComponent(url)}`, {
       timeout: 30000,
       headers: {
         'User-Agent': 'Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.210 Mobile Safari/537.36'
       }
     });
-    const rawData = response.data;
 
     if (!rawData || !rawData.status) {
       spinner.fail(chalk.red(' Failed to fetch Spotify track data'));
@@ -76,23 +75,16 @@ async function downloadSpotify(url, basePath = 'resultdownload_preniv') {
     }
 
     const downloadSpinner = ora(` Downloading ${selectedDownload.type}...`).start();
-    const extension = selectedDownload.format || (selectedDownload.type === 'audio' ? 'mp3' : 'jpg');
-    const safeTitle = data.title.replace(/[<>:"/\\|?*]/g, '').substring(0, 50).trim();
-    const filename = `${safeTitle}_${selectedDownload.type}_${Date.now()}.${extension}`;
-    const maxSize = selectedDownload.type === 'audio' ? MAX_FILE_SIZE : null;
-    await downloadFile(selectedDownload.url, filename, downloadSpinner, basePath, maxSize);
+    const options = getSelectedOption('spotify', selectedDownload);
+    const filename = generateFilename('spotify', {
+      title: data.title,
+      type: selectedDownload.type,
+      ext: selectedDownload.format
+    });
+    await downloadFile(options.url, filename, downloadSpinner, basePath, options.maxSize);
     
   } catch (error) {
-    spinner.fail(chalk.red(' Error fetching Spotify track'));
-    if (error.code === 'ECONNABORTED') {
-      console.log(chalk.gray(' • Request timeout - please try again'));
-    } else if (error.response) {
-      console.log(chalk.gray(` • API Error: ${error.response.status}`));
-    } else if (error.request) {
-      console.log(chalk.gray(' • Network error - please check your connection'));
-    } else {
-      console.log(chalk.gray(` • ${error.message}`));
-    }
+    handleError(error, spinner);
   }
 }
 

@@ -165,7 +165,6 @@ class Normalizer {
     let formats = data.formats || data.downloads || [];
     if (!Array.isArray(formats)) {
       if (formats.video || formats.audio) {
-        // Already in the correct structure
         return {
           title: data.title || null,
           thumbnail: data.thumbnail || null,
@@ -182,9 +181,19 @@ class Normalizer {
     
     const normalizeFormat = (f) => {
       const normalized = { ...f };
+      if (normalized.extension && !normalized.ext) {
+        normalized.ext = normalized.extension;
+      }
+      
       if (!normalized.format && !normalized.ext) {
-        if (normalized.type === 'audio' || (normalized.quality && normalized.quality.toLowerCase().includes('audio'))) {
-          normalized.format = 'mp3';
+        if (normalized.type === 'audio') {
+          normalized.format = normalized.codec || 'mp3';
+        } else if (normalized.type === 'video' || normalized.type === 'video_with_audio') {
+          normalized.format = normalized.codec || 'mp4';
+        } else if (normalized.quality && normalized.quality.toLowerCase().includes('audio')) {
+          normalized.format = normalized.codec || 'mp3';
+        } else if (normalized.quality && (normalized.quality.toLowerCase().includes('kbps') || normalized.quality.toLowerCase().includes('k'))) {
+          normalized.format = normalized.codec || 'mp3';
         } else {
           normalized.format = 'mp4';
         }
