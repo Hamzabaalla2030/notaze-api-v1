@@ -1,6 +1,6 @@
 {
   "name": "prenivdlapp-cli",
-  "version": "1.2.0",
+  "version": "1.3.5",
   "description": "A CLI tool for downloading videos, images, and audio from 13+ social media platforms including TikTok, Instagram, Facebook, Twitter/X, YouTube, Spotify, RedNote/Xiaohongshu, Threads, and more - (FREE)",
   "main": "index.js",
   "bin": {
