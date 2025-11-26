@@ -2,7 +2,7 @@ const normalizer = require('../utils/normalizer');
 
 const getApi = {
   tiktok: 'https://prenivapi.vercel.app/api/tiktok?url=',
-  facebook: 'https://prenivapi.vercel.app/api/fbdl?url=',
+  facebook: 'https://prenivapi.vercel.app/api/facebookv1?url=',
   instagram: 'https://prenivapi.vercel.app/api/igdl?url=',
   twitter: 'https://prenivapi.vercel.app/api/twitter?url=',
   youtube: 'https://prenivapi.vercel.app/api/youtube?url=',
