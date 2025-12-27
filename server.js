@@ -299,26 +299,38 @@ function transformToUnified(platform, normalized, raw) {
         result.author = normalized.author || raw?.author;
         result.duration = normalized.duration || raw?.duration;
 
+        // Define preferred resolutions (only these will be shown)
+        const preferredResolutions = ['360p', '480p', '720p', '1080p'];
+        const seenResolutions = new Set();
+
         if (normalized.downloads?.video?.length) {
             normalized.downloads.video.forEach(item => {
-                result.links.push({
-                    url: item.url,
-                    quality: item.quality || 'Video',
-                    type: item.type || 'video',
-                    format: item.format || 'mp4',
-                    resolution: item.quality
-                });
+                const quality = item.quality || 'Video';
+                // Only add if it's a preferred resolution and not seen before
+                if (preferredResolutions.includes(quality) && !seenResolutions.has(quality)) {
+                    seenResolutions.add(quality);
+                    result.links.push({
+                        url: item.url,
+                        quality: quality,
+                        type: item.type || 'video',
+                        format: item.format || 'mp4',
+                        resolution: quality
+                    });
+                }
             });
         }
+
+        // Add max 1 audio option
         if (normalized.downloads?.audio?.length) {
-            normalized.downloads.audio.forEach(item => {
+            const bestAudio = normalized.downloads.audio[0];
+            if (bestAudio) {
                 result.links.push({
-                    url: item.url,
-                    quality: item.quality || 'Audio',
+                    url: bestAudio.url,
+                    quality: 'Audio MP3',
                     type: 'audio',
-                    format: item.format || 'mp3'
+                    format: bestAudio.format || 'mp3'
                 });
-            });
+            }
         }
     }
 
